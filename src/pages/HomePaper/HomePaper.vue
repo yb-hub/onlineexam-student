@@ -121,157 +121,152 @@
 </template>
 
 <script>
-  import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-  import BackToTop from '../../components/BackToTop'
-  import {reqLanguageInfoById, reqPapersInfo} from '../../api'
-  import {Toast} from 'mint-ui'
-  import Star from '../../components/Star/Star.vue'
-  import { mapState } from 'vuex'
-  export default {
-    name: "",
-    data() {
-      return {
-        topStatus: '',
-        myBackToTopStyle: {
-          right: '37px',
-          bottom: '90px',
-          width: '40px',
-          height: '40px',
-          'border-radius': '4px',
-          'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
-          background: '#909399'// 按钮的背景颜色 The background color of the button
+import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
+import BackToTop from '../../components/BackToTop'
+import {reqLanguageInfoById, reqPapersInfo} from '../../api'
+import {Toast} from 'mint-ui'
+import Star from '../../components/Star/Star.vue'
+import { mapState } from 'vuex'
+export default {
+  name: '',
+  data () {
+    return {
+      topStatus: '',
+      myBackToTopStyle: {
+        right: '37px',
+        bottom: '90px',
+        width: '40px',
+        height: '40px',
+        'border-radius': '4px',
+        'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
+        background: '#909399'// 按钮的背景颜色 The background color of the button
+      },
+      langId: this.$route.params.langId,
+      languageInfoById: {},
+      papersInfo: [],
+      isPaperList: false,
+      loading: false,
+      minJoinNum: 0, // 筛选最低参加人数
+      maxJoinNum: 0, // 筛选最高参加人数
+      minDifficulty: 0, // 筛选最低试卷难度
+      maxDifficulty: 0, // 筛选最高试卷难度
+      paperTypeValue: '', // 选中试卷类型
+      paperTypeOptions: [// 筛选试卷类型
+        {
+          value: '1',
+          label: '随机组卷'
         },
-        langId:this.$route.params.langId,
-        languageInfoById:{},
-        papersInfo:[],
-        isPaperList:false,
-        loading:false,
-        minJoinNum:0,//筛选最低参加人数
-        maxJoinNum:0,//筛选最高参加人数
-        minDifficulty:0,//筛选最低试卷难度
-        maxDifficulty:0,//筛选最高试卷难度
-        paperTypeValue:'',//选中试卷类型
-        paperTypeOptions:[//筛选试卷类型
-          {
-            value: '1',
-            label: '随机组卷'
-          },
-          {
-            value: '2',
-            label: '固定组卷'
-          },
-          {
-            value: '3',
-            label: '全部类型'
-          }
-        ],
-        showPopup:false,
-        noPaperTip:'暂无发布相关试卷',
-        showSearchBtn: false
+        {
+          value: '2',
+          label: '固定组卷'
+        },
+        {
+          value: '3',
+          label: '全部类型'
+        }
+      ],
+      showPopup: false,
+      noPaperTip: '暂无发布相关试卷',
+      showSearchBtn: false
+    }
+  },
+  computed: {
+    optionLeft () {
+      return {
+        direction: 2,
+        limitMoveNum: 2
+        // hoverStop: false
       }
     },
-    computed: {
-      optionLeft () {
-        return {
-          direction: 2,
-          limitMoveNum: 2,
-          // hoverStop: false
-        }
-      },
-      ...mapState(['examCalendar'])
+    ...mapState(['examCalendar'])
+  },
+  created () {
+    this.getLanguageInfoById()
+    this.getPapersInfo()
+  },
+  methods: {
+    loadTop () {
+      this.getPapersInfo()
+      setTimeout(() => {
+        this.$refs.loadmore.onTopLoaded()
+      }, 1000)
     },
-    created(){
-      this.getLanguageInfoById();
-      this.getPapersInfo();
+    async getLanguageInfoById () {
+      this.loading = true
+      const {langId} = this
+      let result = await reqLanguageInfoById({langId})
+      if (result.statu == 0) {
+        this.languageInfoById = result.data
+      } else {
+        Toast({
+          message: result.msg,
+          duration: 2000
+        })
+      }
     },
-    methods: {
-      loadTop() {
-        this.getPapersInfo()
-        setTimeout(() => {
-          this.$refs.loadmore.onTopLoaded()
-        }, 1000)
-      },
-      async getLanguageInfoById(){
-        this.loading = true;
-        const {langId} = this;
-        let result = await reqLanguageInfoById({langId});
-        if (result.statu == 0){
-          this.languageInfoById = result.data;
+    async getPapersInfo () {
+      const {langId} = this
+      let result = await reqPapersInfo({langId})
+      if (result.statu == 0) {
+        this.papersInfo = result.data
+        if (this.papersInfo.length <= 2) {
+          this.showSearchBtn = false
+        } else {
+          this.showSearchBtn = true
         }
-        else {
-          Toast({
-            message:result.msg,
-            duration: 2000
-          });
-        }
-      },
-      async getPapersInfo(){
-        const {langId} = this;
-        let result = await reqPapersInfo({langId});
-        if (result.statu == 0){
-          this.papersInfo = result.data;
-          if (this.papersInfo.length <= 2){
-            this.showSearchBtn = false;
-          } else {
-            this.showSearchBtn = true;
-          }
-        }
-        else if (result.msg == '试卷列表为空') {
-          this.showSearchBtn = false;
-          this.isPaperList = true;
-        }
-        else {
-          Toast({
-            message:result.msg,
-            duration: 2000
-          });
-        }
-      },
-      toPaperDetail(paperId){
-        this.$router.push('/home/paper/detail/' + paperId)
-      },
-      async correctSearch(){
-        const {langId} = this;
-        let result = await reqPapersInfo({langId});
-        if (result.statu == 0){
-          let papersInfo = result.data;
-          if (this.paperTypeValue === '' || this.paperTypeValue === '3'){
-            this.papersInfo = papersInfo.filter(item => item.paperDifficulty >= this.minDifficulty &&
+      } else if (result.msg == '试卷列表为空') {
+        this.showSearchBtn = false
+        this.isPaperList = true
+      } else {
+        Toast({
+          message: result.msg,
+          duration: 2000
+        })
+      }
+    },
+    toPaperDetail (paperId) {
+      this.$router.push('/home/paper/detail/' + paperId)
+    },
+    async correctSearch () {
+      const {langId} = this
+      let result = await reqPapersInfo({langId})
+      if (result.statu == 0) {
+        let papersInfo = result.data
+        if (this.paperTypeValue === '' || this.paperTypeValue === '3') {
+          this.papersInfo = papersInfo.filter(item => item.paperDifficulty >= this.minDifficulty &&
               item.paperDifficulty <= this.maxDifficulty &&
               item.participateNum >= this.minJoinNum &&
-              item.participateNum <= this.maxJoinNum);
-          }
-          else {
-            this.papersInfo = papersInfo.filter(item => item.paperType === parseInt(this.paperTypeValue) &&
+              item.participateNum <= this.maxJoinNum)
+        } else {
+          this.papersInfo = papersInfo.filter(item => item.paperType === parseInt(this.paperTypeValue) &&
               item.paperDifficulty >= this.minDifficulty &&
               item.paperDifficulty <= this.maxDifficulty &&
               item.participateNum >= this.minJoinNum &&
-              item.participateNum <= this.maxJoinNum);
-          }
-          // console.log(this.papersInfo)
-          this.showPopup = false;
-/*          this.paperTypeValue = '';
+              item.participateNum <= this.maxJoinNum)
+        }
+        // console.log(this.papersInfo)
+        this.showPopup = false
+        /*          this.paperTypeValue = '';
           this.minDifficulty = 0;
           this.maxDifficulty = 0;
           this.minJoinNum = 0;
-          this.maxJoinNum = 0;*/
-        }
-        if (!this.papersInfo.length) {
-          this.noPaperTip = '该筛选暂无结果';
-          this.isPaperList = true;
-        }
-        else {
-          this.noPaperTip = '暂无发布相关试卷';
-          this.isPaperList = false;
-        }
+          this.maxJoinNum = 0; */
       }
-    },
-    components:{
-      HeaderTop,
-      Star,
-      BackToTop
+      if (!this.papersInfo.length) {
+        this.noPaperTip = '该筛选暂无结果'
+        this.isPaperList = true
+      } else {
+        this.noPaperTip = '暂无发布相关试卷'
+        this.isPaperList = false
+      }
     }
+  },
+  components: {
+    HeaderTop,
+    Star,
+    BackToTop
   }
+}
 </script>
 
 <style lang="stylus" type="text/stylus" rel="stylesheet/stylus" scoped>
