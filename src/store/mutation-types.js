@@ -1,6 +1,8 @@
 /*
   包含n个mutation的type名称常量
  */
+export const GET_COURSE_LIST = 'get_course_list' //接收首页课程
+
 export const RECEIVE_ROTATION_IMAGES = 'receive_rotation_images' // 接收首页轮播图数组
 export const RECEIVE_USER_INFO = 'receive_user_info' // 接收用户信息
 export const RESET_USER_INFO = 'reset_user_info' // 重置用户信息

@@ -7,7 +7,7 @@ export default {
   unreadMsgCount: 0,//用户我的页面未读消息条数
   feedbackInfo: [],//消息列表反馈信息数组
   examCalendar: [],//考试日历列表数组
-  languagesInfo: [],//首页九宫格编程语言信息
+  courseList: [],//首页课程数组
 
   currentIndex: 0,//当前题目索引，默认为0
   singleAnswers: [],//单选题答案数

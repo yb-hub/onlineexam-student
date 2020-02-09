@@ -13,22 +13,22 @@
       </div>
     </HeaderTop>
 
-    <div class="lang_desc">
-      <span>{{languageInfoById.langDesc}}</span>
-    </div>
+    <!--<div class="lang_desc">-->
+      <!--<span>{{languageInfoById.langDesc}}</span>-->
+    <!--</div>-->
 
-    <!--教师公告无缝跑马灯-->
-    <div class="notices_run">
-      <i class="iconfont iconxiazai41"></i>
+    <!--&lt;!&ndash;教师公告无缝跑马灯&ndash;&gt;-->
+    <!--<div class="notices_run">-->
+      <!--<i class="iconfont iconxiazai41"></i>-->
 
-      <vue-seamless-scroll :data="examCalendar" :class-option="optionLeft" class="seamless-warp2">
-        <ul class="item">
-          <li>
-            最新公告消息:{{examCalendar[0].noticeContent}}
-          </li>
-        </ul>
-      </vue-seamless-scroll>
-    </div>
+      <!--<vue-seamless-scroll :data="examCalendar" :class-option="optionLeft" class="seamless-warp2">-->
+        <!--<ul class="item">-->
+          <!--<li>-->
+            <!--最新公告消息:{{examCalendar[0].noticeContent}}-->
+          <!--</li>-->
+        <!--</ul>-->
+      <!--</vue-seamless-scroll>-->
+    <!--</div>-->
 
     <div class="search_btn" @click="showPopup = true" v-show="showSearchBtn">
       <mu-button fab color="teal" >
@@ -36,7 +36,7 @@
       </mu-button>
     </div>
 
-    <div class="paper_screen">
+    <div class="paper_screen" style="margin-top: 20px">
       <mt-popup v-model="showPopup" position="bottom" style="width: 100%">
         <div class="popup_div">
           <div class="click_event">

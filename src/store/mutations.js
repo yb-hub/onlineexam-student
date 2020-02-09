@@ -30,10 +30,17 @@ import {
   REFRESH_MULTIPLE_ANSWERS,
   REFRESH_JUDGE_ANSWERS,
   REFRESH_FILL_ANSWERS,
-  REFRESH_FIRST_CURRENT_TIME
-} from "./mutation-types";
+  REFRESH_FIRST_CURRENT_TIME,
+
+  GET_COURSE_LIST
+} from './mutation-types'
 // [方法名](state,{param}){}
 export default {
+
+  [GET_COURSE_LIST] (state,{courseList}){
+    state.courseList = courseList;
+  },
+
   [RECEIVE_ROTATION_IMAGES] (state, {rotationImages}){
     state.rotationImages = rotationImages;
   },

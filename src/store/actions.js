@@ -4,6 +4,8 @@
 
 // 注意要引入api接口函数
 import {
+  getCourseList,
+
   reqRotationImages,
   reqLogout,
   reqUnreadMsgCount,
@@ -12,6 +14,8 @@ import {
   reqLanguagesInfo
 } from '../api'
 import {
+  GET_COURSE_LIST,
+
   RECEIVE_ROTATION_IMAGES,
   RECEIVE_USER_INFO,
   RESET_USER_INFO,
@@ -40,6 +44,15 @@ import {
 } from "./mutation-types";
 
 export default {
+  //异步获取首页课程数组
+  async getCourseList({commit}){
+    const result = await getCourseList()
+    if(result.code === 200){
+      const courseList = result.data
+      commit(GET_COURSE_LIST,{courseList})
+    }
+  },
+
   //异步获取轮播图片数组
   async getRotationImages({commit}){
     // 发送异步ajax请求
@@ -50,6 +63,7 @@ export default {
       commit(RECEIVE_ROTATION_IMAGES, {rotationImages})
     }
   },
+
   //异步获取首页编程语言信息数组
   async getLanguagesInfo({commit}){
     // 发送异步ajax请求

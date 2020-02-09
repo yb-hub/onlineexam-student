@@ -4,7 +4,7 @@
 import ajax from './ajax'
 const BASE_URL = 'http://www.lovecoding.online:8088/api/student'
 // const BASE_URL = process.env.BASE_API
-
+const BASE_URL2 = 'http://localhost:8008/student'
 /*
   获取轮播图片数据
  */
@@ -146,3 +146,5 @@ export const reqJudgeByAnswerId = ({answerId}) => ajax(BASE_URL + '/getJudgeByAn
   通过answerId获取收藏填空题目详情
  */
 export const reqFillByAnswerId = ({answerId}) => ajax(BASE_URL + '/getFillByAnswerId', {answerId})
+
+export const getCourseList = () => ajax(BASE_URL2 + '/courses')

@@ -13,25 +13,12 @@
 
     <Swiper :lunbotuList="rotationImages" :isfull="true" class="swiper"></Swiper>
 
-    <!--:class="{ 'already-clock': alreadyClock }"-->
-    <div class="clock-container already-clock" @click="clickClock">
-      <div class="clock">
-        <div class="clock-top">
-          <i class="iconfont icondaqia"></i>
-          {{currentDate | date-format('YYYY-MM-DD')}}
-        </div>
-        <div class="clock-bottom">
-          打卡
-        </div>
-      </div>
-    </div>
-
     <div class="sudoku_row"  >
-      <div class="sudoku_item " :class="{opacity:curSelect===item.langId, recommend:item.isRecommend == '1', 'first_recommend':item.isRecommend == '1' && index == 0}"
-           v-for="(item,index) in languagesInfo"
-           :key="index" @touchstart="touchstart(item.langId)" @touchend="touchend" @click="toPaper(item.langId)">
+      <div class="sudoku_item " :class="{opacity:curSelect===item.id}"
+           v-for="(item,index) in courseList"
+           :key="index" @touchstart="touchstart(item.id)" @touchend="touchend" @click="toPaper(item.id)">
         <img :src="item.langImgSrc" width="40" height="40" >
-        {{item.langName}}
+        {{item.name}}
       </div>
     </div>
 
@@ -59,19 +46,16 @@
     name: "",
     created(){
       this.$store.dispatch('getRotationImages');
-      // this.$store.dispatch('getExamCalendar');
-      this.$store.dispatch('getLanguagesInfo');
+      this.$store.dispatch('getCourseList');
     },
     data() {
       return {
-        currentDate:new Date(),
         curSelect:null,
-        alreadyClock: false
       }
     },
     computed:{
       //轮播图的数组
-      ...mapState(['examCalendar','rotationImages','userInfo','languagesInfo'])
+      ...mapState(['examCalendar','rotationImages','userInfo','courseList'])
     },
     methods:{
       touchstart:function(e){
@@ -110,22 +94,6 @@
           this.$router.push('/home/paper/' + langId)
         }
       },
-      clickClock() {
-        if (!this.alreadyClock) {
-          Toast({
-            message: '恭喜您，打卡成功',
-            iconClass: 'iconfont icondaqia1',
-            duration: 1500
-          });
-          this.alreadyClock = true
-        } else {
-          Toast({
-            message: '请勿重复打卡',
-            iconClass: 'iconfont iconxinxi',
-            duration: 1500
-          });
-        }
-      }
     },
     components:{
       HeaderTop,
@@ -143,29 +111,6 @@
     .swiper
       padding-top 45px
       //box-shadow 0px 0px 1px rgba(0,0,0,.5)
-    .clock-container
-      background-color #fff
-      background-image url("../../common/imgs/clock.png"), url("../../common/imgs/good.png"), url("../../common/imgs/stu-clock.png")
-      background-size 32px 32px, 24px 24px, 65px 32px
-      background-repeat no-repeat, no-repeat, no-repeat
-      background-position 100% 0%, 45% 50%, 63% 50%
-      margin-top 6px
-      height 50px
-      color #fff
-      &.already-clock
-        background-image url("../../common/imgs/clock.png"), url("../../common/imgs/good.png"), url("../../common/imgs/stu-clock.png"), url("../../common/imgs/already-clock.png")
-        background-size 32px 32px, 24px 24px, 65px 32px, 32px 32px
-        background-repeat no-repeat, no-repeat, no-repeat, no-repeat
-        background-position 100% 0%, 45% 50%, 63% 50%, 84% 0%
-      .clock
-        height 100%
-        width 38%
-        display flex
-        flex-direction column
-        justify-content space-around
-        align-items center
-        background-color #4ab8a1
-        border-radius 0 23px 23px 0
     .sudoku_row
       display flex
       align-items center
