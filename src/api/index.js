@@ -147,4 +147,8 @@ export const reqJudgeByAnswerId = ({answerId}) => ajax(BASE_URL + '/getJudgeByAn
  */
 export const reqFillByAnswerId = ({answerId}) => ajax(BASE_URL + '/getFillByAnswerId', {answerId})
 
+//获取首页课程列表
 export const getCourseList = () => ajax(BASE_URL2 + '/courses')
+
+//获取考试练习页列表（课程名称，练习试卷列表）
+export const getPaperByCourseId = (id) => ajax(BASE_URL2 + '/paper/course/'+id)

@@ -1,37 +1,20 @@
 <template>
   <section class="paper">
     <!--利用$router.back()返回上一级路由 -->
-    <HeaderTop :title="languageInfoById.langName">
+    <HeaderTop :title="courseName">
       <a href="javascript:" slot="left" class="go_back" @click="$router.goBack()">
         <i class="iconfont iconxiazai6"></i>返回
       </a>
 
       <div class="header_message" slot="right">
         <viewer>
-          <img :src="languageInfoById.langImgSrc">
+          <img :src="courseImg">
         </viewer>
       </div>
     </HeaderTop>
 
-    <!--<div class="lang_desc">-->
-      <!--<span>{{languageInfoById.langDesc}}</span>-->
-    <!--</div>-->
-
-    <!--&lt;!&ndash;教师公告无缝跑马灯&ndash;&gt;-->
-    <!--<div class="notices_run">-->
-      <!--<i class="iconfont iconxiazai41"></i>-->
-
-      <!--<vue-seamless-scroll :data="examCalendar" :class-option="optionLeft" class="seamless-warp2">-->
-        <!--<ul class="item">-->
-          <!--<li>-->
-            <!--最新公告消息:{{examCalendar[0].noticeContent}}-->
-          <!--</li>-->
-        <!--</ul>-->
-      <!--</vue-seamless-scroll>-->
-    <!--</div>-->
-
     <div class="search_btn" @click="showPopup = true" v-show="showSearchBtn">
-      <mu-button fab color="teal" >
+      <mu-button fab color="teal">
         <mu-icon value="search"></mu-icon>
       </mu-button>
     </div>
@@ -75,39 +58,43 @@
     </div>
 
     <!--<transition-group enter-active-class="bounceIn" :duration="{enter:200}">-->
-      <mt-loadmore v-if="papersInfo.length" :top-method="loadTop" ref="loadmore">
-        <div class="paper_list"  v-for="(item, index) in papersInfo" :key="item.paperId">
-          <div class="paper_list_item" :class="{'corner_top': index == 0, 'corner_new':index == 1, 'corner_hot':item.participateNum > 10}">
-            <div class="paper_title">
-              试卷名称：{{item.paperName}}
+    <mt-loadmore v-if="paperList.length" :top-method="loadTop" ref="loadmore">
+      <div class="paper_list" v-for="(item, index) in paperList" :key="item.id">
+        <div class="paper_list_item"
+             :class="{'corner_top': index == 0, 'corner_new':index == 1, 'corner_hot':item.participateNum > 10}">
+          <div class="paper_title">
+            试卷名称：{{item.title}}
+          </div>
+          <div class="paper_type">
+            试卷类型：{{item.type == 1 ? '测试组卷' : '考试组卷'}}
+          </div>
+          <div class="paper_create_time">
+            发布时间：{{item.updateTime | date-format-simple}}
+          </div>
+          <div class="paper_difficulty">
+            <span>难度系数：</span>
+            <Star :score="item.difficultyDegree" :size="24"/>
+          </div>
+          <div class="paper_limit_time">
+            考试时间：{{item.limitTime}} 分钟
+          </div>
+          <div class="paper_participate">
+            <div class="paper_participate_left">
+              <img src="../../common/imgs/person.png" alt=""><span style="color: #FF0000">{{item.participateNum}}</span>人参加
             </div>
-            <div class="paper_type">
-              试卷类型：{{item.paperType == 1 ? '随机组卷' : '固定组卷'}}
-            </div>
-            <div class="paper_create_time">
-              发布时间：{{item.paperCreateTime | date-format}}
-            </div>
-            <div class="paper_difficulty">
-              <span>难度系数：</span>
-              <Star :score="item.paperDifficulty" :size="24" />
-            </div>
-            <div class="paper_participate">
-              <div class="paper_participate_left">
-                <img src="../../common/imgs/person.png" alt=""><span style="color: #FF0000">{{item.participateNum}}</span>人参加
-              </div>
-              <div class="paper_participate_right">
-                <mt-button size="small" type="primary" @click.native="toPaperDetail(item.paperId)">查看详情</mt-button>
-              </div>
+            <div class="paper_participate_right">
+              <mt-button size="small" type="primary" @click.native="toPaperDetail(item.id)">查看详情</mt-button>
             </div>
           </div>
         </div>
-        <div class="bottom_tips">
-          <span>我是有底线的</span>
-        </div>
-      </mt-loadmore>
+      </div>
+      <div class="bottom_tips">
+        <span>我是有底线的</span>
+      </div>
+    </mt-loadmore>
     <!--</transition-group>-->
 
-    <back-to-top :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="0" transition-name="fade" />
+    <back-to-top :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="0" transition-name="fade"/>
 
     <!--animate动画-->
     <transition enter-active-class="bounceIn" :duration="{enter:500}">
@@ -121,152 +108,155 @@
 </template>
 
 <script>
-import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-import BackToTop from '../../components/BackToTop'
-import {reqLanguageInfoById, reqPapersInfo} from '../../api'
-import {Toast} from 'mint-ui'
-import Star from '../../components/Star/Star.vue'
-import { mapState } from 'vuex'
-export default {
-  name: '',
-  data () {
-    return {
-      topStatus: '',
-      myBackToTopStyle: {
-        right: '37px',
-        bottom: '90px',
-        width: '40px',
-        height: '40px',
-        'border-radius': '4px',
-        'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
-        background: '#909399'// 按钮的背景颜色 The background color of the button
-      },
-      langId: this.$route.params.langId,
-      languageInfoById: {},
-      papersInfo: [],
-      isPaperList: false,
-      loading: false,
-      minJoinNum: 0, // 筛选最低参加人数
-      maxJoinNum: 0, // 筛选最高参加人数
-      minDifficulty: 0, // 筛选最低试卷难度
-      maxDifficulty: 0, // 筛选最高试卷难度
-      paperTypeValue: '', // 选中试卷类型
-      paperTypeOptions: [// 筛选试卷类型
-        {
-          value: '1',
-          label: '随机组卷'
-        },
-        {
-          value: '2',
-          label: '固定组卷'
-        },
-        {
-          value: '3',
-          label: '全部类型'
-        }
-      ],
-      showPopup: false,
-      noPaperTip: '暂无发布相关试卷',
-      showSearchBtn: false
-    }
-  },
-  computed: {
-    optionLeft () {
+  import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
+  import BackToTop from '../../components/BackToTop'
+  import {getPaperByCourseId, reqPapersInfo} from '../../api'
+  import {Toast} from 'mint-ui'
+  import Star from '../../components/Star/Star.vue'
+  import {mapState} from 'vuex'
+
+  export default {
+    name: '',
+    data () {
       return {
-        direction: 2,
-        limitMoveNum: 2
-        // hoverStop: false
+        courseId: this.$route.params.id,
+        courseName:'',
+        courseImg:'',
+        paperList:[
+          {
+            id:'',
+            title:'',
+            type:'',
+            description:'',
+            grade:'',
+            limitTime:'',
+            difficultyDegree:'',
+            totalScore:'',
+            updateTime:'',
+          }
+        ],
+
+        topStatus: '',
+        myBackToTopStyle: {
+          right: '37px',
+          bottom: '90px',
+          width: '40px',
+          height: '40px',
+          'border-radius': '4px',
+          'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
+          background: '#909399'// 按钮的背景颜色 The background color of the button
+        },
+        isPaperList: false,
+        loading: false,
+        minJoinNum: 0, // 筛选最低参加人数
+        maxJoinNum: 0, // 筛选最高参加人数
+        minDifficulty: 0, // 筛选最低试卷难度
+        maxDifficulty: 0, // 筛选最高试卷难度
+        paperTypeValue: '', // 选中试卷类型
+        paperTypeOptions: [// 筛选试卷类型
+          {
+            value: '1',
+            label: '随机组卷'
+          },
+          {
+            value: '2',
+            label: '固定组卷'
+          },
+          {
+            value: '3',
+            label: '全部类型'
+          }
+        ],
+        showPopup: false,
+        noPaperTip: '暂无发布相关试卷',
+        showSearchBtn: false
       }
     },
-    ...mapState(['examCalendar'])
-  },
-  created () {
-    this.getLanguageInfoById()
-    this.getPapersInfo()
-  },
-  methods: {
-    loadTop () {
-      this.getPapersInfo()
-      setTimeout(() => {
-        this.$refs.loadmore.onTopLoaded()
-      }, 1000)
-    },
-    async getLanguageInfoById () {
-      this.loading = true
-      const {langId} = this
-      let result = await reqLanguageInfoById({langId})
-      if (result.statu == 0) {
-        this.languageInfoById = result.data
-      } else {
-        Toast({
-          message: result.msg,
-          duration: 2000
-        })
-      }
-    },
-    async getPapersInfo () {
-      const {langId} = this
-      let result = await reqPapersInfo({langId})
-      if (result.statu == 0) {
-        this.papersInfo = result.data
-        if (this.papersInfo.length <= 2) {
-          this.showSearchBtn = false
-        } else {
-          this.showSearchBtn = true
+    computed: {
+      optionLeft () {
+        return {
+          direction: 2,
+          limitMoveNum: 2
+          // hoverStop: false
         }
-      } else if (result.msg == '试卷列表为空') {
-        this.showSearchBtn = false
-        this.isPaperList = true
-      } else {
-        Toast({
-          message: result.msg,
-          duration: 2000
-        })
-      }
+      },
+      ...mapState(['examCalendar'])
     },
-    toPaperDetail (paperId) {
-      this.$router.push('/home/paper/detail/' + paperId)
+    created () {
+      this.getPaperByCourseId()
     },
-    async correctSearch () {
-      const {langId} = this
-      let result = await reqPapersInfo({langId})
-      if (result.statu == 0) {
-        let papersInfo = result.data
-        if (this.paperTypeValue === '' || this.paperTypeValue === '3') {
-          this.papersInfo = papersInfo.filter(item => item.paperDifficulty >= this.minDifficulty &&
+    methods: {
+      async getPaperByCourseId () {
+        this.loading = true
+        let result = await getPaperByCourseId(this.courseId)
+        if (result.code === 200) {
+          this.courseName = result.data.courseName
+          this.paperList = result.data.paperList
+          if (this.paperList.length <= 2) {
+            this.showSearchBtn = false
+          } else {
+            this.showSearchBtn = true
+          }
+          if (this.paperList.length == 0) {
+            this.showSearchBtn = false
+            this.isPaperList = true
+          }
+        } else {
+          Toast({
+            message: result.message,
+            duration: 2000
+          })
+        }
+      },
+      loadTop () {
+        this.getPaperByCourseId()
+        setTimeout(() => {
+          this.$refs.loadmore.onTopLoaded()
+        }, 1000)
+      },
+      toPaperDetail (paperId) {
+        this.$router.push('/home/paper/detail/' + paperId)
+      },
+      async correctSearch () {
+        const {langId} = this
+        let result = await reqPapersInfo({langId})
+        if (result.statu == 0) {
+          let papersInfo = result.data
+          if (this.paperTypeValue === '' || this.paperTypeValue === '3') {
+            this.papersInfo = papersInfo.filter(item => item.paperDifficulty >= this.minDifficulty &&
               item.paperDifficulty <= this.maxDifficulty &&
               item.participateNum >= this.minJoinNum &&
               item.participateNum <= this.maxJoinNum)
-        } else {
-          this.papersInfo = papersInfo.filter(item => item.paperType === parseInt(this.paperTypeValue) &&
+          } else {
+            this.papersInfo = papersInfo.filter(item => item.paperType === parseInt(this.paperTypeValue) &&
               item.paperDifficulty >= this.minDifficulty &&
               item.paperDifficulty <= this.maxDifficulty &&
               item.participateNum >= this.minJoinNum &&
               item.participateNum <= this.maxJoinNum)
+          }
+          // console.log(this.papersInfo)
+          this.showPopup = false
+          /*          this.paperTypeValue = '';
+            this.minDifficulty = 0;
+            this.maxDifficulty = 0;
+            this.minJoinNum = 0;
+            this.maxJoinNum = 0; */
         }
-        // console.log(this.papersInfo)
-        this.showPopup = false
-        /*          this.paperTypeValue = '';
-          this.minDifficulty = 0;
-          this.maxDifficulty = 0;
-          this.minJoinNum = 0;
-          this.maxJoinNum = 0; */
+        if (!this.papersInfo.length) {
+          this.noPaperTip = '该筛选暂无结果'
+          this.isPaperList = true
+        } else {
+          this.noPaperTip = '暂无发布相关试卷'
+          this.isPaperList = false
+        }
       }
-      if (!this.papersInfo.length) {
-        this.noPaperTip = '该筛选暂无结果'
-        this.isPaperList = true
-      } else {
-        this.noPaperTip = '暂无发布相关试卷'
-        this.isPaperList = false
-      }
+    },
+    components: {
+      HeaderTop,
+      Star,
+      BackToTop
     }
-  },
-  components: {
-    HeaderTop,
-    Star,
-    BackToTop
   }
-}
 </script>
 
 <style lang="stylus" type="text/stylus" rel="stylesheet/stylus" scoped>
@@ -310,7 +300,7 @@ export default {
       display flex
       justify-content center
       align-items center
-      background-color rgba(125,125,125,.3)
+      background-color rgba(125, 125, 125, .3)
       color lightcoral
       margin-bottom 20px
       i
@@ -344,25 +334,25 @@ export default {
         margin-bottom 20px
         padding 20px
         background-color #fff
-        background-image url("../../common/imgs/paper-center-top.png"), url("../../common/imgs/paper-right-top.png"), url("../../common/imgs/paper.png")
+        background-image url("../../common/imgs/paper-center-top.png") , url("../../common/imgs/paper-right-top.png") , url("../../common/imgs/paper.png")
         background-size 50px 18px, 40px 40px, 32px 32px
         background-repeat no-repeat, no-repeat, no-repeat
         background-position 50% 5%, 100% 0%, 85% 40%
         border-radius 5px
         box-shadow 0 0 3px #ccc
         &.corner_top
-          background-image url("../../common/imgs/paper-center-top.png"), url("../../common/imgs/paper-right-top.png"), url("../../common/imgs/paper.png"), url("../../common/imgs/corner-mark-top.png")
-          background-size 50px 18px, 40px 40px, 32px 32px ,40px 40px
+          background-image url("../../common/imgs/paper-center-top.png") , url("../../common/imgs/paper-right-top.png") , url("../../common/imgs/paper.png") , url("../../common/imgs/corner-mark-top.png")
+          background-size 50px 18px, 40px 40px, 32px 32px, 40px 40px
           background-repeat no-repeat, no-repeat, no-repeat, no-repeat
           background-position 50% 5%, 100% 0%, 85% 40%, 0% 0%
         &.corner_new
-          background-image url("../../common/imgs/paper-center-top.png"), url("../../common/imgs/paper-right-top.png"), url("../../common/imgs/paper.png"), url("../../common/imgs/corner-mark-new.png")
-          background-size 50px 18px, 40px 40px, 32px 32px ,40px 40px
+          background-image url("../../common/imgs/paper-center-top.png") , url("../../common/imgs/paper-right-top.png") , url("../../common/imgs/paper.png") , url("../../common/imgs/corner-mark-new.png")
+          background-size 50px 18px, 40px 40px, 32px 32px, 40px 40px
           background-repeat no-repeat, no-repeat, no-repeat, no-repeat
           background-position 50% 5%, 100% 0%, 85% 40%, 0% 0%
         &.corner_hot
-          background-image url("../../common/imgs/paper-center-top.png"), url("../../common/imgs/paper-right-top.png"), url("../../common/imgs/paper.png"), url("../../common/imgs/corner-mark-hot.png")
-          background-size 50px 18px, 40px 40px, 32px 32px ,40px 40px
+          background-image url("../../common/imgs/paper-center-top.png") , url("../../common/imgs/paper-right-top.png") , url("../../common/imgs/paper.png") , url("../../common/imgs/corner-mark-hot.png")
+          background-size 50px 18px, 40px 40px, 32px 32px, 40px 40px
           background-repeat no-repeat, no-repeat, no-repeat, no-repeat
           background-position 50% 5%, 100% 0%, 85% 40%, 0% 0%
         .paper_title
@@ -375,6 +365,11 @@ export default {
           font-size 14px
           color #999
         .paper_create_time
+          height 30px
+          line-height 30px
+          font-size 14px
+          color #999
+        .paper_limit_time
           height 30px
           line-height 30px
           font-size 14px
@@ -397,7 +392,7 @@ export default {
             color lightslategray
             display flex
             align-items center
-            >img
+            > img
               width 25px
               height 25px
     .no_paper_list
@@ -405,7 +400,7 @@ export default {
       flex-direction column
       align-items center
       padding-top 100px
-      >h3
+      > h3
         font-size 17px
         color #6a6a6a
 </style>

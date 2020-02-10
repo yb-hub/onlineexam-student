@@ -59,9 +59,9 @@
     },
     methods:{
       touchstart:function(e){
-        var list = this.$store.state.languagesInfo;
+        var list = this.$store.state.courseList;
         for (var i = 0, len = list.length; i < len; i++) {
-          if (list[i].langId == e) {
+          if (list[i].id == e) {
             this.curSelect = i + 1;
           }
         }
@@ -83,7 +83,7 @@
           this.$router.push('/profile/examcalendar')
         }
       },
-      toPaper(langId){
+      toPaper(id){
         if (!this.$store.state.userInfo.sno){
           Toast({
             message:'请先登录系统',
@@ -91,7 +91,7 @@
           });
         }
         else{
-          this.$router.push('/home/paper/' + langId)
+          this.$router.push('/home/paper/' + id)
         }
       },
     },

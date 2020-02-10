@@ -61,7 +61,7 @@ export default new VueRouter({
       }
     },
     {
-      path:'/home/paper/:langId',
+      path:'/home/paper/:id',
       component:HomePaper
     },
     {
