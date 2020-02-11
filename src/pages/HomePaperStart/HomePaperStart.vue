@@ -1,6 +1,6 @@
 <template>
   <section class="paper">
-    <HeaderTop :title="paperInfo.paperName" class="paper_header">
+    <HeaderTop :title="paperDetail.title" class="paper_header">
       <a href="javascript:" slot="left" class="go_back" @click="toBack">
         <i class="iconfont iconfanhui"></i>
       </a>
@@ -15,13 +15,13 @@
     <!--考试日期和考试时长-->
     <div class="paper_sub_title_first">
       <span class="paper_date">考试日期：{{currentDate | date-format('YYYY-MM-DD')}}</span>
-      <span class="paper_duration">考试时长：{{paperInfo.paperDuration/60}}分钟</span>
+      <span class="paper_duration">考试时长：{{paperDetail.limitTime}}分钟</span>
     </div>
 
     <!--时间提醒和当前题数-->
     <div class="paper_sub_title_second">
       <span class="paper_clock"><i class="iconfont iconjishiqi"></i>{{restTime}}</span>
-      <span class="paper_statistics"><i class="iconfont icontongji"></i>{{currentIndex + 1}}/{{queNumInfo.totalNum}}</span>
+      <span class="paper_statistics"><i class="iconfont icontongji"></i>{{currentIndex + 1}}/{{paperDetail.totalQuestion}}</span>
     </div>
 
     <!--考卷进度条提醒-->
@@ -37,71 +37,67 @@
     <!--试卷问题及选项区域-->
     <div class="paper_container" v-show="showPaperContainer">
       <!--单选题列表-->
-      <section class="que" v-for="(item, index) in singleQueList" :key="'single'+ item.singleId"
+      <section class="que" v-for="(item, index) in paperDetail.singleChoiceList" :key="'single'+ item.id"
                v-show="index == currentIndex">
         <div class="content">
           <span class="que_type">(单选题)</span>
-          <span class="que_content">{{index + 1}}.&nbsp;{{item.singleContent}}<span class="que_score">[{{paperInfo.singleScore}}分]</span></span>
+          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}<span class="que_score">[{{paperDetail.singleScore}}分]</span></span>
 
-          <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+          <!--<img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">-->
 
           <div class="single_option" v-for="(option, optionIndex) in item.options"
-               :key="'single'+ item.singleId + optionIndex">
-            <!--            <mt-radio
-                          v-model="singleAnswer"
-                          :options="singleQueList[0].options">
-                        </mt-radio>-->
-            <mu-radio :value="option.value" v-model="singleAnswer" :label="option.label" v-if="option.label" @change="singleChange"></mu-radio>
+               :key="'single'+ item.id + optionIndex">
+            <mu-radio :value="option.optionKey" v-model="singleAnswer" :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue" @change="singleChange"></mu-radio>
           </div>
         </div>
       </section>
 
       <!--多选题列表-->
-      <section class="que" v-for="(item, index) in multipleQueList" :key="'multiple'+ item.multipleId"
-               v-show="(index + queNumInfo.singleNum) == currentIndex">
+      <section class="que" v-for="(item, index) in paperDetail.multiChoiceList" :key="'multiple'+ item.id"
+               v-show="(index + paperDetail.totalSingleChoice) == currentIndex">
         <div class="content">
           <span class="que_type">(多选题)</span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum}}.&nbsp;{{item.multipleContent}}<span
-            class="que_score">[{{paperInfo.multipleScore}}分]</span></span>
+          <span class="que_content">{{index + 1 + paperDetail.totalSingleChoice}}.&nbsp;{{item.title}}<span
+            class="que_score">[{{paperDetail.multiScore}}分]</span></span>
 
-          <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+          <!--<img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">-->
 
           <div class="multiple_option" v-for="(option, optionIndex) in item.options"
-               :key="'multiple'+ item.multipleId + optionIndex">
-            <mu-checkbox :value="option.value" v-model="multipleAnswer" :label="option.label"
-                         v-if="option.label" @change="multipleChange"></mu-checkbox>
+               :key="'multiple'+ item.id + optionIndex">
+            <mu-checkbox :value="option.optionKey" v-model="multipleAnswer" :label="option.optionKey+':'+option.optionValue"
+                         v-if="option.optionValue" @change="multipleChange"></mu-checkbox>
           </div>
         </div>
       </section>
 
       <!--判断题列表-->
-      <section class="que" v-for="(item, index) in judgeQueList" :key="'judge'+ item.judgeId"
-               v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum) == currentIndex">
+      <section class="que" v-for="(item, index) in paperDetail.judgeChoiceList" :key="'judge'+ item.id"
+               v-show="(index + paperDetail.totalSingleChoice + paperDetail.totalMultiChoice) == currentIndex">
         <div class="content">
           <span class="que_type">(判断题)</span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum}}.&nbsp;{{item.judgeContent}}<span
-            class="que_score">[{{paperInfo.judgeScore}}分]</span></span>
+          <span class="que_content">{{index + 1 + paperDetail.totalSingleChoice + paperDetail.totalMultiChoice}}.&nbsp;{{item.title}}<span
+            class="que_score">[{{paperDetail.judgeScore}}分]</span></span>
 
-          <div class="judge_option" v-for="(option, optionIndex) in item.options"
-               :key="'judge'+ item.judgeId + optionIndex">
+          <div class="judge_option" v-for="(option, optionIndex) in [{'value':'1','label':'T'},{'value':'0','label':'F'}]"
+               :key="'judge'+ item.id + optionIndex">
             <mu-radio :value="option.value" v-model="judgeAnswer" :label="option.label" v-if="option.label" @change="judgeChange"></mu-radio>
           </div>
         </div>
       </section>
 
-      <!--填空题列表-->
-      <section class="que" v-for="(item, index) in fillQueList" :key="'fill'+ item.fillId"
-               v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum) == currentIndex">
-        <div class="content">
-          <span class="que_type">(填空题)</span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}.&nbsp;{{item.fillContent}}<span
-            class="que_score">[{{paperInfo.fillScore}}分]</span></span>
+      <!--&lt;!&ndash;填空题列表&ndash;&gt;-->
+      <!--<section class="que" v-for="(item, index) in fillQueList" :key="'fill'+ item.fillId"-->
+               <!--v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum) == currentIndex">-->
+        <!--<div class="content">-->
+          <!--<span class="que_type">(填空题)</span>-->
+          <!--<span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}.&nbsp;{{item.fillContent}}<span-->
+            <!--class="que_score">[{{paperInfo.fillScore}}分]</span></span>-->
 
-          <div class="fill_option">
-            <mu-text-field v-model="fillAnswer" label="答题区域(答案不区分大小写，首尾空格忽略)" full-width multi-line :rows="3" :rows-max="6" @change="fillChange"></mu-text-field>
-          </div>
-        </div>
-      </section>
+          <!--<div class="fill_option">-->
+            <!--<mu-text-field v-model="fillAnswer" label="答题区域(答案不区分大小写，首尾空格忽略)" full-width multi-line :rows="3" :rows-max="6" @change="fillChange"></mu-text-field>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</section>-->
 
       <!--上一题和下一题按钮-->
       <div class="paper_button">
@@ -198,7 +194,7 @@
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import {Toast, MessageBox, Indicator} from 'mint-ui'
-  import {reqPapersInfoByPaperId, reqInsertStudentPaperScore, reqSubmitPaper} from '../../api'
+  import {getPaperDetailByPaperId, reqInsertStudentPaperScore, reqSubmitPaper} from '../../api'
   import {getNumberPrefix} from '../../utils/common.js'
   import {mapState, mapActions, mapGetters} from 'vuex'
 
@@ -206,6 +202,7 @@
     name: "",
     data() {
       return {
+        paperDetail:{},
         //学号
         sno: this.$store.state.userInfo.sno,
         //当前日期
@@ -288,18 +285,16 @@
       });
 
       //加入callback回调函数保证在异步获取数据后执行this.countTime();
-      this.getPaperInfoByPaperId(() => {
+      this.getPaperDetailByPaperId(() => {
 
-        this.percentage = parseInt((this.currentIndex+1)/this.queNumInfo.totalNum*100);
+        this.percentage = parseInt((this.currentIndex+1)/this.paperDetail.totalQuestion*100);
 
         //初始化state中单选题答案数组长度
-        this.$store.dispatch('initSingleAnswersLength',this.queNumInfo.singleNum);
+        this.$store.dispatch('initSingleAnswersLength',this.paperDetail.totalSingleChoice);
         //初始化state中多选题答案数组长度
-        this.$store.dispatch('initMultipleAnswersLength',this.queNumInfo.multipleNum);
+        this.$store.dispatch('initMultipleAnswersLength',this.paperDetail.totalMultiChoice);
         //初始化state中判断题答案数组长度
-        this.$store.dispatch('initJudgeAnswersLength',this.queNumInfo.judgeNum);
-        //初始化state中填空题答案数组长度
-        this.$store.dispatch('initFillAnswersLength',this.queNumInfo.fillNum);
+        this.$store.dispatch('initJudgeAnswersLength',this.paperDetail.totalJudgeChoice);
 
         //若vuex中state没被赋值过则将最先进入考试的开始时间存入vuex的state
         if (this.firstCurrentTime == 0){
@@ -362,17 +357,15 @@
         }
       },
       // 根据paperId获取试卷信息和问题数量信息
-      async getPaperInfoByPaperId(callback) {
-        const {paperId} = this;
-        let result = await reqPapersInfoByPaperId({paperId});
-        if (result.statu == 0) {
-          // console.log(result.data);
-          this.paperInfo = result.data.paperInfo;
-          this.queNumInfo = result.data.queNumInfo;
-          this.singleQueList = result.data.singleQueList;
-          this.multipleQueList = result.data.multipleQueList;
-          this.judgeQueList = result.data.judgeQueList;
-          this.fillQueList = result.data.fillQueList;
+      async getPaperDetailByPaperId(callback) {
+        let result = await getPaperDetailByPaperId(this.paperId);
+        if (result.code === 200) {
+          this.paperDetail = result.data
+          // this.queNumInfo = result.data.queNumInfo;
+          // this.singleQueList = result.data.singleQueList;
+          // this.multipleQueList = result.data.multipleQueList;
+          // this.judgeQueList = result.data.judgeQueList;
+          // this.fillQueList = result.data.fillQueList;
           Indicator.close();
           callback && callback()
         }
@@ -385,17 +378,16 @@
       },
       //倒计时
       countTime() {
-        // console.log(this.paperInfo.paperDuration);
+
         //定义常量vm代表vue实例，指向当前this
         const vm = this,
-          endTime = vm.paperInfo.paperDuration * 1000 + vm.firstCurrentTime,//firstCurrentTime即最先进入考试的时间
+          endTime = vm.paperDetail.limitTime * 60 * 1000 + vm.firstCurrentTime,//firstCurrentTime即最先进入考试的时间
           currentTime = new Date().getTime(),
           restTime = endTime - currentTime,
           hours = getNumberPrefix(parseInt(restTime / (1000 * 60 * 60) % 24, 10)),
           minutes = getNumberPrefix(parseInt(restTime / (1000 * 60) % 60, 10)),
           seconds = getNumberPrefix(parseInt(restTime / 1000 % 60, 10));
         vm.restTime = `${hours}:${minutes}:${seconds}`;
-
         vm.timer = setTimeout(function () {
           if (restTime > 0) {
             vm.countTime();

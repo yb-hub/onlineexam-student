@@ -152,3 +152,6 @@ export const getCourseList = () => ajax(BASE_URL2 + '/courses')
 
 //获取考试练习页列表（课程名称，练习试卷列表）
 export const getPaperByCourseId = (id) => ajax(BASE_URL2 + '/paper/course/'+id)
+
+//通过试卷id获取试卷详情信息
+export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/' + id)

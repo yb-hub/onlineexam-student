@@ -10,41 +10,23 @@
       </a>
 
       <div class="header_message" slot="right">
-        <viewer>
-          <img src="../../common/imgs/paper-detail.png">
-        </viewer>
+        <!--<viewer>-->
+          <!--<img src="../../common/imgs/paper-detail.png">-->
+        <!--</viewer>-->
       </div>
     </HeaderTop>
 
-    <!--试卷名-->
-    <div class="paper_name">
-      <span>{{paperInfo.paperName}}</span>
-    </div>
-
-    <!--教师公告无缝跑马灯-->
-    <div class="notices_run">
-      <i class="iconfont iconxiazai41"></i>
-
-      <vue-seamless-scroll :data="examCalendar" :class-option="optionLeft" class="seamless-warp2">
-        <ul class="item">
-          <li>
-            最新公告消息:{{examCalendar[0].noticeContent}}
-          </li>
-        </ul>
-      </vue-seamless-scroll>
-    </div>
-
     <!--试卷详情-->
-    <div class="paper_detail">
+    <div class="paper_detail" style="margin-top:20px">
         <div class="paper_title">
-          试卷名称：{{paperInfo.paperName}}
+          试卷名称：{{paperDetail.title}}
         </div>
         <div class="paper_type">
           <span style="color: #3caafd">
             <i class="iconfont iconleixing"></i>
             试卷类型：
           </span>
-          {{paperInfo.paperType == 1 ? '随机组卷' : '固定组卷'}}
+          {{paperDetail.type == 1 ? '练习组卷' : '考试组卷'}}
         </div>
 
         <div class="paper_create_time">
@@ -52,7 +34,7 @@
             <i class="iconfont iconshijian"></i>
             发布时间：
           </span>
-          {{paperInfo.paperCreateTime | date-format}}
+          {{paperDetail.updateTime | date-format-simple}}
         </div>
 
         <div class="paper_total_que">
@@ -60,7 +42,7 @@
             <i class="iconfont iconquanbu"></i>
             全部题数：
           </span>
-          {{queNumInfo.totalNum}}道
+          {{paperDetail.totalQuestion}}道
         </div>
 
         <div class="paper_duration">
@@ -68,7 +50,7 @@
             <i class="iconfont iconzhandoushichang"></i>
             考试时长：
           </span>
-          {{Math.round(paperInfo.paperDuration/60)}}分钟
+          {{paperDetail.limitTime}}分钟
         </div>
 
         <div class="paper_total_score">
@@ -76,7 +58,7 @@
             <i class="iconfont iconzongfen"></i>
             试卷总分：
           </span>
-          {{totalScore}}分
+          {{paperDetail.totalScore}}分
         </div>
 
         <div class="paper_pass">
@@ -84,7 +66,7 @@
             <i class="iconfont iconbiaozhunhua"></i>
             及格标准：
           </span>
-          {{Math.round(totalScore*0.6)}}分
+          {{Math.round(paperDetail.totalScore*0.6)}}分
         </div>
 
         <div class="paper_difficulty">
@@ -92,23 +74,25 @@
             <i class="iconfont iconxishu"></i>
             <span>难度系数：</span>
           </span>
-          <Star :score="paperInfo.paperDifficulty" :size="24" />
+          <Star :score="paperDetail.difficultyDegree" :size="24" />
         </div>
 
-        <div class="paper_participate">
-          <span style="color: #3caafd">
-            <i class="iconfont iconcanjia"></i>
-            参加人数：
-          </span>
-          {{paperInfo.participateNum}}人
-        </div>
+        <!--<div class="paper_participate">-->
+          <!--<span style="color: #3caafd">-->
+            <!--<i class="iconfont iconcanjia"></i>-->
+            <!--参加人数：-->
+          <!--</span>-->
+          <!--{{paperDetail.participateNum}}人-->
+        <!--</div>-->
 
         <div class="paper_que_type">
           <span style="color: #3caafd">
             <i class="iconfont icontixing"></i>
             题型介绍：
           </span>
-          单选题{{queNumInfo.singleNum}}道每题{{paperInfo.singleScore}}分，多选题{{queNumInfo.multipleNum}}道每题{{paperInfo.multipleScore}}分，判断题{{queNumInfo.judgeNum}}道每题{{paperInfo.judgeScore}}分，填空题{{queNumInfo.fillNum}}道每题{{paperInfo.fillScore}}分
+          单选题{{paperDetail.totalSingleChoice}}道每题{{paperDetail.singleScore}}分，
+          多选题{{paperDetail.totalMultiChoice}}道每题{{paperDetail.multiScore}}分，
+          判断题{{paperDetail.totalJudgeChoice}}道每题{{paperDetail.judgeScore}}分
         </div>
 
         <div class="paper_attention">
@@ -116,7 +100,7 @@
             <i class="iconfont iconzhuyi"/>
             注意事项：
           </span>
-          {{paperInfo.paperAttention}}
+          {{paperDetail.description}}
         </div>
       </div>
 
@@ -130,7 +114,7 @@
 </template>
 
 <script>
-  import {reqPapersInfoByPaperId, reqCurrentPaperStatus} from '../../api'
+  import {getPaperDetailByPaperId, reqCurrentPaperStatus} from '../../api'
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import Star from '../../components/Star/Star.vue'
   import {Toast, MessageBox, Indicator} from 'mint-ui'
@@ -141,7 +125,7 @@
       return {
         sno:this.$store.state.userInfo.sno,
         paperId:this.$route.params.paperId,
-        paperInfo:{},
+        paperDetail:{},
         queNumInfo:{},
         currentPaperStatus:0,
         loading: false
@@ -149,7 +133,8 @@
     },
     created(){
       this.loading = true
-      this.getPaperInfoByPaperId();
+      this.getPaperDetailByPaperId();
+      //this.getPaperInfoByPaperId();
       this.getCurrentPaperStatus();
       setTimeout(() => {
         this.loading = false
@@ -163,28 +148,19 @@
           // hoverStop: false
         }
       },
-      ...mapState(['examCalendar']),
-      totalScore(){
-        return this.queNumInfo.singleNum*this.paperInfo.singleScore + this.queNumInfo.multipleNum*this.paperInfo.multipleScore + this.queNumInfo.judgeNum*this.paperInfo.judgeScore + this.queNumInfo.fillNum*this.paperInfo.fillScore
-      }
+      // ...mapState(['examCalendar']),
+      // totalScore(){
+      //   return this.queNumInfo.singleNum*this.paperInfo.singleScore + this.queNumInfo.multipleNum*this.paperInfo.multipleScore + this.queNumInfo.judgeNum*this.paperInfo.judgeScore + this.queNumInfo.fillNum*this.paperInfo.fillScore
+      // }
     },
     methods: {
-      // 通过paperId获取试卷详情信息
-      async getPaperInfoByPaperId(){
-        const {paperId} = this;
-        let result = await reqPapersInfoByPaperId({paperId});
-        if (result.statu === 0){
-          this.paperInfo = result.data.paperInfo;
-          this.queNumInfo = result.data.queNumInfo;
-        }
-        else {
-          Toast({
-            message:result.msg,
-            duration: 2000
-          });
+      //通过paperId获取试卷详情信息
+      async getPaperDetailByPaperId(){
+        let result = await getPaperDetailByPaperId(this.paperId)
+        if(result.code === 200){
+          this.paperDetail =  result.data
         }
       },
-      // 获取当前试卷的状态，判断是否禁用开始考试按钮
       async getCurrentPaperStatus(){
         const {sno, paperId} = this;
         let result = await reqCurrentPaperStatus({sno, paperId});
