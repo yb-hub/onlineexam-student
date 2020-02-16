@@ -155,3 +155,6 @@ export const getPaperByCourseId = (id) => ajax(BASE_URL2 + '/paper/course/'+id)
 
 //通过试卷id获取试卷详情信息
 export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/' + id)
+
+//将考生试卷提交到后台
+export const insertPaperResult = (submittedPaper) => ajax(BASE_URL2 + '/paper/result', submittedPaper,'POST')

@@ -41,13 +41,16 @@
                v-show="index == currentIndex">
         <div class="content">
           <span class="que_type">(单选题)</span>
-          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}<span class="que_score">[{{paperDetail.singleScore}}分]</span></span>
+          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}
+            <span class="que_score">[{{paperDetail.singleScore}}分]</span></span>
 
           <!--<img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">-->
 
           <div class="single_option" v-for="(option, optionIndex) in item.options"
                :key="'single'+ item.id + optionIndex">
-            <mu-radio :value="option.optionKey" v-model="singleAnswer" :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue" @change="singleChange"></mu-radio>
+            <mu-radio :value="option.optionKey" v-model="singleAnswer"
+                      :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue"
+                      @change="singleChange"></mu-radio>
           </div>
         </div>
       </section>
@@ -64,7 +67,8 @@
 
           <div class="multiple_option" v-for="(option, optionIndex) in item.options"
                :key="'multiple'+ item.id + optionIndex">
-            <mu-checkbox :value="option.optionKey" v-model="multipleAnswer" :label="option.optionKey+':'+option.optionValue"
+            <mu-checkbox :value="option.optionKey" v-model="multipleAnswer"
+                         :label="option.optionKey+':'+option.optionValue"
                          v-if="option.optionValue" @change="multipleChange"></mu-checkbox>
           </div>
         </div>
@@ -78,35 +82,23 @@
           <span class="que_content">{{index + 1 + paperDetail.totalSingleChoice + paperDetail.totalMultiChoice}}.&nbsp;{{item.title}}<span
             class="que_score">[{{paperDetail.judgeScore}}分]</span></span>
 
-          <div class="judge_option" v-for="(option, optionIndex) in [{'value':'1','label':'T'},{'value':'0','label':'F'}]"
+          <div class="judge_option"
+               v-for="(option, optionIndex) in [{'value':'1','label':'T'},{'value':'0','label':'F'}]"
                :key="'judge'+ item.id + optionIndex">
-            <mu-radio :value="option.value" v-model="judgeAnswer" :label="option.label" v-if="option.label" @change="judgeChange"></mu-radio>
+            <mu-radio :value="option.value" v-model="judgeAnswer" :label="option.label" v-if="option.label"
+                      @change="judgeChange"></mu-radio>
           </div>
         </div>
       </section>
-
-      <!--&lt;!&ndash;填空题列表&ndash;&gt;-->
-      <!--<section class="que" v-for="(item, index) in fillQueList" :key="'fill'+ item.fillId"-->
-               <!--v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum) == currentIndex">-->
-        <!--<div class="content">-->
-          <!--<span class="que_type">(填空题)</span>-->
-          <!--<span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}.&nbsp;{{item.fillContent}}<span-->
-            <!--class="que_score">[{{paperInfo.fillScore}}分]</span></span>-->
-
-          <!--<div class="fill_option">-->
-            <!--<mu-text-field v-model="fillAnswer" label="答题区域(答案不区分大小写，首尾空格忽略)" full-width multi-line :rows="3" :rows-max="6" @change="fillChange"></mu-text-field>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</section>-->
-
       <!--上一题和下一题按钮-->
       <div class="paper_button">
         <mt-button type="primary" @click.native="preItem"
                    :disabled="currentIndex < 1">{{currentIndex < 1 ? '无' :
           '上一题'}}
         </mt-button>
-        <mt-button type="primary" @click.native="nextItem" v-if="currentIndex != queNumInfo.totalNum-1">下一题</mt-button>
-        <mt-button type="primary" @click.native="clickSubmit" v-if="currentIndex == queNumInfo.totalNum-1">提交试卷
+        <mt-button type="primary" @click.native="nextItem" v-if="currentIndex != paperDetail.totalQuestion-1">下一题
+        </mt-button>
+        <mt-button type="primary" @click.native="clickSubmit" v-if="currentIndex == paperDetail.totalQuestion-1">提交试卷
         </mt-button>
       </div>
 
@@ -117,34 +109,37 @@
 
       <div class="card_title">
         <span>答题卡</span>
-        <span>已完成({{completeNumber}}/{{queNumInfo.totalNum}})</span>
+        <span>已完成({{completeNumber}}/{{paperDetail.totalQuestion}})</span>
       </div>
 
       <div class="card_options">
         <!--答题卡单选题-->
         <div class="options">
-          <div class="options_title" style="padding-top: 15px" v-if="paperInfo.singleScore">
-            单选题(每题{{paperInfo.singleScore}}分)
+          <div class="options_title" style="padding-top: 15px" v-if="paperDetail.singleScore">
+            单选题(每题{{paperDetail.singleScore}}分)
           </div>
 
           <div class="row">
-            <div class="item" v-for="(singleItem, singleIndex) in queNumInfo.singleNum" :key="singleIndex">
+            <div class="item" v-for="(singleItem, singleIndex) in paperDetail.totalSingleChoice" :key="singleIndex">
               <div @click="toPaperQue(singleItem)"
-                   :class="{'complete_flag' : singleAnswers[singleIndex] ? true : false}"><span>{{singleItem}}</span></div>
+                   :class="{'complete_flag' : singleAnswers[singleIndex] ? true : false}"><span>{{singleItem}}</span>
+              </div>
             </div>
           </div>
         </div>
 
         <!--答题卡多选题-->
         <div class="options">
-          <div class="options_title" v-if="paperInfo.multipleScore">
-            多选题(每题{{paperInfo.multipleScore}}分)
+          <div class="options_title" v-if="paperDetail.multiScore">
+            多选题(每题{{paperDetail.multiScore}}分)
           </div>
 
           <div class="row">
-            <div class="item" v-for="(multipleItem, multipleIndex) in queNumInfo.multipleNum" :key="multipleIndex">
-              <div @click="toPaperQue(multipleItem + queNumInfo.singleNum)"
-                   :class="{'complete_flag' : JSON.stringify(multipleAnswers[multipleIndex]) !== '[]' &&  JSON.stringify(multipleAnswers[multipleIndex]) !== undefined && JSON.stringify(multipleAnswers[multipleIndex]) !== 'null' ? true : false}"><span>{{multipleItem + queNumInfo.singleNum}}</span>
+            <div class="item" v-for="(multipleItem, multipleIndex) in paperDetail.totalMultiChoice"
+                 :key="multipleIndex">
+              <div @click="toPaperQue(multipleItem + paperDetail.totalSingleChoice)"
+                   :class="{'complete_flag' : JSON.stringify(multipleAnswers[multipleIndex]) !== '[]' &&  JSON.stringify(multipleAnswers[multipleIndex]) !== undefined && JSON.stringify(multipleAnswers[multipleIndex]) !== 'null' ? true : false}">
+                <span>{{multipleItem + paperDetail.totalSingleChoice}}</span>
               </div>
             </div>
           </div>
@@ -152,34 +147,19 @@
 
         <!--答题卡判断题-->
         <div class="options">
-          <div class="options_title" v-if="paperInfo.judgeScore">
-            判断题(每题{{paperInfo.judgeScore}}分)
+          <div class="options_title" v-if="paperDetail.judgeScore">
+            判断题(每题{{paperDetail.judgeScore}}分)
           </div>
 
           <div class="row">
-            <div class="item" v-for="(judgeItem, judgeIndex) in queNumInfo.multipleNum" :key="judgeIndex">
-              <div @click="toPaperQue(judgeItem + queNumInfo.singleNum + queNumInfo.multipleNum)"
-                   :class="{'complete_flag' : judgeAnswers[judgeIndex] ? true : false}"><span>{{judgeItem + queNumInfo.singleNum + queNumInfo.multipleNum}}</span>
+            <div class="item" v-for="(judgeItem, judgeIndex) in paperDetail.totalJudgeChoice" :key="judgeIndex">
+              <div @click="toPaperQue(judgeItem + paperDetail.totalSingleChoice + paperDetail.totalMultiChoice)"
+                   :class="{'complete_flag' : judgeAnswers[judgeIndex] ? true : false}">
+                <span>{{judgeItem + paperDetail.totalSingleChoice + paperDetail.totalMultiChoice}}</span>
               </div>
             </div>
           </div>
         </div>
-
-        <!--答题卡填空题-->
-        <div class="options">
-          <div class="options_title" v-if="paperInfo.fillScore">
-            填空题(每题{{paperInfo.fillScore}}分)
-          </div>
-
-          <div class="row">
-            <div class="item" v-for="(fillItem, fillIndex) in queNumInfo.fillNum" :key="fillIndex">
-              <div @click="toPaperQue(fillItem + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum)"
-                   :class="{'complete_flag' : fillAnswers[fillIndex] ? true : false}">
-                <span>{{fillItem + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}</span></div>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       <div class="card_button">
@@ -194,15 +174,15 @@
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import {Toast, MessageBox, Indicator} from 'mint-ui'
-  import {getPaperDetailByPaperId, reqInsertStudentPaperScore, reqSubmitPaper} from '../../api'
+  import {getPaperDetailByPaperId, reqInsertStudentPaperScore, insertPaperResult} from '../../api'
   import {getNumberPrefix} from '../../utils/common.js'
   import {mapState, mapActions, mapGetters} from 'vuex'
 
   export default {
-    name: "",
-    data() {
+    name: '',
+    data () {
       return {
-        paperDetail:{},
+        paperDetail: {},
         //学号
         sno: this.$store.state.userInfo.sno,
         //当前日期
@@ -216,8 +196,8 @@
 
         //初始化时间戳
         currentTime: new Date().getTime(),
-        restTime: "",
-        timer: "",
+        restTime: '',
+        timer: '',
         //单选题数组
         singleQueList: [],
         //单选题答案
@@ -233,98 +213,82 @@
         //判断题答案
         judgeAnswer: '',
 
-        //填空题数组
-        fillQueList: [],
-        //填空题答案
-        fillAnswer: '',
         //是否显示paperContainer,默认进入页面为true
         showPaperContainer: true,
         //是否显示paperCard答题卡，默认进入页面为false，当点击答题卡区域为true
         showPaperCard: false,
-        timeUsed:0, //考试花费时间
-        percentage:0 //进度条值
+        timeUsed: 0, //考试花费时间
+        percentage: 0 //进度条值
       }
     },
-    computed:{
+    computed: {
       ...mapState([
         'currentIndex',//当前题数
         'singleAnswers',
         'multipleAnswers',
         'judgeAnswers',
-        'fillAnswers',
         'firstCurrentTime'
       ]),
       ...mapGetters(['completeNumber'])
-/*      //答题卡已完成题数
-      completeNumber(){
-        var number = 0;
-        this.singleAnswers.forEach(function (v) {
-          if (v)
-            number++
-        });
-        this.multipleAnswers.forEach(function (v) {
-          if (v.length)
-            number++
-        });
-        this.judgeAnswers.forEach(function (v) {
-          if (v)
-            number++
-        });
-        this.fillAnswers.forEach(function (v) {
-          if (v)
-            number++
-        });
-        console.log(number)
-        return number
-      }*/
+      /*      //答题卡已完成题数
+            completeNumber(){
+              var number = 0;
+              this.singleAnswers.forEach(function (v) {
+                if (v)
+                  number++
+              });
+              this.multipleAnswers.forEach(function (v) {
+                if (v.length)
+                  number++
+              });
+              this.judgeAnswers.forEach(function (v) {
+                if (v)
+                  number++
+              });
+              this.fillAnswers.forEach(function (v) {
+                if (v)
+                  number++
+              });
+              console.log(number)
+              return number
+            }*/
     },
-    created() {
+    created () {
       Indicator.open({
         text: '加载中...',
         spinnerType: 'fading-circle'
-      });
+      })
 
       //加入callback回调函数保证在异步获取数据后执行this.countTime();
       this.getPaperDetailByPaperId(() => {
 
-        this.percentage = parseInt((this.currentIndex+1)/this.paperDetail.totalQuestion*100);
+        this.percentage = parseInt((this.currentIndex + 1) / this.paperDetail.totalQuestion * 100)
 
         //初始化state中单选题答案数组长度
-        this.$store.dispatch('initSingleAnswersLength',this.paperDetail.totalSingleChoice);
+        this.$store.dispatch('initSingleAnswersLength', this.paperDetail.totalSingleChoice)
         //初始化state中多选题答案数组长度
-        this.$store.dispatch('initMultipleAnswersLength',this.paperDetail.totalMultiChoice);
+        this.$store.dispatch('initMultipleAnswersLength', this.paperDetail.totalMultiChoice)
         //初始化state中判断题答案数组长度
-        this.$store.dispatch('initJudgeAnswersLength',this.paperDetail.totalJudgeChoice);
+        this.$store.dispatch('initJudgeAnswersLength', this.paperDetail.totalJudgeChoice)
 
         //若vuex中state没被赋值过则将最先进入考试的开始时间存入vuex的state
-        if (this.firstCurrentTime == 0){
+        if (this.firstCurrentTime == 0) {
           //同步记录开始时间
-          let firstCurrentTime = this.currentTime;
-          this.recordFirstCurrentTime(firstCurrentTime);
-          sessionStorage.removeItem("firstCurrentTime");
-          sessionStorage.setItem("firstCurrentTime",firstCurrentTime)
+          let firstCurrentTime = this.currentTime
+          this.recordFirstCurrentTime(firstCurrentTime)
+          sessionStorage.removeItem('firstCurrentTime')
+          sessionStorage.setItem('firstCurrentTime', firstCurrentTime)
         }
 
         //调用计时器方法，在试卷信息数据请求成功后获取考试时长开始计时
-        this.countTime();
+        this.countTime()
 
         //判断是否已经初始化插入数据到学生考试成绩表，防止刷新二次执行插入以及关闭浏览器二次插入数据
-        if (!sessionStorage.getItem("sno" + this.sno + "paperId" + this.paperId)) {
-          this.insertStudentPaperScore();
+        if (!sessionStorage.getItem('sno' + this.sno + 'paperId' + this.paperId)) {
+          this.insertStudentPaperScore()
         }
-      });
+      })
     },
-    /*mounted() {
-      // 挂载完成后，判断浏览器是否支持popstate
-      if(window.history && window.history.pushState) {
-        // 进入页面时给history压入一个本地的连接
-        window.history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', this.toBack, false);
-      }
-    },
-    destroyed() {
-      window.removeEventListener('popstate', this.toBack, false);
-    },*/
     methods: {
       ...mapActions([
         'nextQue',//点击下一题
@@ -343,41 +307,36 @@
         'refreshFirstCurrentTime',
       ]),
       //插入学生成绩表成绩信息，包含三个字段，考试开始时间、学号和试卷id
-      async insertStudentPaperScore() {
-        const {sno, paperId} = this;
-        let result = await reqInsertStudentPaperScore({sno, paperId});
+      async insertStudentPaperScore () {
+        const {sno, paperId} = this
+        let result = await reqInsertStudentPaperScore({sno, paperId})
         if (result.statu == 0) {
-          sessionStorage.setItem("sno" + this.sno + "paperId" + this.paperId, result.msg);
+          sessionStorage.setItem('sno' + this.sno + 'paperId' + this.paperId, result.msg)
         }
         else {
           Toast({
             message: result.msg,
             duration: 1500
-          });
+          })
         }
       },
       // 根据paperId获取试卷信息和问题数量信息
-      async getPaperDetailByPaperId(callback) {
-        let result = await getPaperDetailByPaperId(this.paperId);
+      async getPaperDetailByPaperId (callback) {
+        let result = await getPaperDetailByPaperId(this.paperId)
         if (result.code === 200) {
           this.paperDetail = result.data
-          // this.queNumInfo = result.data.queNumInfo;
-          // this.singleQueList = result.data.singleQueList;
-          // this.multipleQueList = result.data.multipleQueList;
-          // this.judgeQueList = result.data.judgeQueList;
-          // this.fillQueList = result.data.fillQueList;
-          Indicator.close();
+          Indicator.close()
           callback && callback()
         }
         else {
           Toast({
             message: result.msg,
             duration: 2000
-          });
+          })
         }
       },
       //倒计时
-      countTime() {
+      countTime () {
 
         //定义常量vm代表vue实例，指向当前this
         const vm = this,
@@ -386,207 +345,191 @@
           restTime = endTime - currentTime,
           hours = getNumberPrefix(parseInt(restTime / (1000 * 60 * 60) % 24, 10)),
           minutes = getNumberPrefix(parseInt(restTime / (1000 * 60) % 60, 10)),
-          seconds = getNumberPrefix(parseInt(restTime / 1000 % 60, 10));
-        vm.restTime = `${hours}:${minutes}:${seconds}`;
+          seconds = getNumberPrefix(parseInt(restTime / 1000 % 60, 10))
+        vm.restTime = `${hours}:${minutes}:${seconds}`
         vm.timer = setTimeout(function () {
           if (restTime > 0) {
-            vm.countTime();
+            vm.countTime()
           } else if (restTime <= 0) {
-            clearTimeout(vm.timer);
+            clearTimeout(vm.timer)
             Toast({
               message: '交卷时间已到，系统将帮您自动交卷',
               duration: 1000
-            });
+            })
             setTimeout(() => {
-              let result = vm.handleSubmit();
-              if (result){
+              let result = vm.handleSubmit()
+              if (result) {
                 //等待成绩计算完毕并插入数据库表
                 Indicator.open({
                   text: '加载中...',
                   spinnerType: 'fading-circle'
-                });
+                })
                 setTimeout(() => {
-                  Indicator.close();
+                  Indicator.close()
                   //清除sessionStorage数据
-                  sessionStorage.removeItem("currentIndex");
-                  sessionStorage.removeItem("singleAnswers");
-                  sessionStorage.removeItem("multipleAnswers");
-                  sessionStorage.removeItem("judgeAnswers");
-                  sessionStorage.removeItem("judgeAnswers");
-                  sessionStorage.removeItem("fillAnswers");
-                  sessionStorage.removeItem("firstCurrentTime");
-                  sessionStorage.removeItem("sno" + vm.sno + "paperId" + vm.paperId, result.msg);
+                  sessionStorage.removeItem('currentIndex')
+                  sessionStorage.removeItem('singleAnswers')
+                  sessionStorage.removeItem('multipleAnswers')
+                  sessionStorage.removeItem('judgeAnswers')
+                  sessionStorage.removeItem('judgeAnswers')
+                  sessionStorage.removeItem('fillAnswers')
+                  sessionStorage.removeItem('firstCurrentTime')
+                  sessionStorage.removeItem('sno' + vm.sno + 'paperId' + vm.paperId, result.msg)
                   //清除vuex数据
-                  vm.refreshCurrentIndex(0);
-                  vm.refreshSingleAnswers([]);
-                  vm.refreshMultipleAnswers([]);
-                  vm.refreshJudgeAnswers([]);
-                  vm.refreshFillAnswers([]);
-                  vm.refreshFirstCurrentTime(0);
-                  vm.$router.replace('/profile/stuscore');
+                  vm.refreshCurrentIndex(0)
+                  vm.refreshSingleAnswers([])
+                  vm.refreshMultipleAnswers([])
+                  vm.refreshJudgeAnswers([])
+                  vm.refreshFillAnswers([])
+                  vm.refreshFirstCurrentTime(0)
+                  vm.$router.replace('/profile/stuscore')
                 }, 3000)
               }
               else {
                 Toast({
-                  message:'交卷失败，数据库错误，请重新开始考试',
+                  message: '交卷失败，数据库错误，请重新开始考试',
                   duration: 1500
-                });
+                })
                 vm.$router.replace('/home/paper/detail/' + vm.paperId)
               }
             }, 2000)
           }
-        }, 1000);
+        }, 1000)
       },
       //用户手动点击提交试卷按钮，弹出确认框
-      clickSubmit(){
+      clickSubmit () {
         MessageBox.confirm('确定要提交试卷吗?').then(action => {
-          let result = this.handleSubmit();
-          if (result){
+          let result = this.handleSubmit()
+          if (result) {
             //等待成绩计算完毕并插入数据库表
             Indicator.open({
               text: '自动计算成绩中...',
               spinnerType: 'double-bounce'
-            });
+            })
             setTimeout(() => {
-              Indicator.close();
+              Indicator.close()
               Toast({
-                message:'提交成功，请查看成绩',
+                message: '提交成功，请查看成绩',
                 duration: 1500
-              });
+              })
               //清除sessionStorage数据
-              sessionStorage.removeItem("currentIndex");
-              sessionStorage.removeItem("singleAnswers");
-              sessionStorage.removeItem("multipleAnswers");
-              sessionStorage.removeItem("judgeAnswers");
-              sessionStorage.removeItem("judgeAnswers");
-              sessionStorage.removeItem("fillAnswers");
-              sessionStorage.removeItem("firstCurrentTime");
-              sessionStorage.removeItem("sno" + this.sno + "paperId" + this.paperId, result.msg);
+              sessionStorage.removeItem('currentIndex')
+              sessionStorage.removeItem('singleAnswers')
+              sessionStorage.removeItem('multipleAnswers')
+              sessionStorage.removeItem('judgeAnswers')
+              sessionStorage.removeItem('judgeAnswers')
+              sessionStorage.removeItem('firstCurrentTime')
+              sessionStorage.removeItem('sno' + this.sno + 'paperId' + this.paperId, result.msg)
               //清除vuex数据
-              this.refreshCurrentIndex(0);
-              this.refreshSingleAnswers([]);
-              this.refreshMultipleAnswers([]);
-              this.refreshJudgeAnswers([]);
-              this.refreshFillAnswers([]);
-              this.refreshFirstCurrentTime(0);
-              this.$router.replace('/profile/stuscore');
+              this.refreshCurrentIndex(0)
+              this.refreshSingleAnswers([])
+              this.refreshMultipleAnswers([])
+              this.refreshJudgeAnswers([])
+              this.refreshFirstCurrentTime(0)
+              this.$router.replace('/profile/stuscore')
             }, 4000)
           }
           else {
             Toast({
-              message:'交卷失败，数据库错误，请重新开始考试',
+              message: '交卷失败，数据库错误，请重新开始考试',
               duration: 1500
-            });
+            })
             this.$router.replace('/home/paper/detail/' + this.paperId)
           }
-        },() => {
+        }, () => {
           //点击取消按钮操作
         })
       },
       //最终提交答案，包含用户手动点击提交按钮和到时自动提交
-      async handleSubmit() {
-        this.timeUsed = new Date().getTime() - this.firstCurrentTime;
-        clearTimeout(this.timer);
-
+      async handleSubmit () {
+        this.timeUsed = new Date().getTime() - this.firstCurrentTime
+        clearTimeout(this.timer)
         //将考试答案数据提交给后台
-        const {sno, paperId, singleAnswers, multipleAnswers, judgeAnswers, fillAnswers, timeUsed} = this;
-        let result = await reqSubmitPaper({sno, paperId, singleAnswers, multipleAnswers, judgeAnswers, fillAnswers, timeUsed});
-        if (result.statu == 0) {
-          //交卷成功
-          /*//清除sessionStorage数据
-          sessionStorage.removeItem("currentIndex");
-          sessionStorage.removeItem("singleAnswers");
-          sessionStorage.removeItem("multipleAnswers");
-          sessionStorage.removeItem("judgeAnswers");
-          sessionStorage.removeItem("judgeAnswers");
-          sessionStorage.removeItem("fillAnswers");
-          sessionStorage.removeItem("firstCurrentTime");
-          sessionStorage.removeItem("sno" + this.sno + "paperId" + this.paperId, result.msg);
-          //清除vuex数据
-          this.refreshCurrentIndex(0);
-          this.refreshSingleAnswers([]);
-          this.refreshMultipleAnswers([]);
-          this.refreshJudgeAnswers([]);
-          this.refreshFillAnswers([]);
-          this.refreshFirstCurrentTime(0);*/
-          // console.log(rusult.msg);
-          return true;
+        const submittedPaper = {
+          'studentId': this.sno,
+          'paperId': this.paperId,
+          'singleChoiceAnswer': this.singleAnswers,
+          'multiChoiceAnswer': this.multipleAnswers,
+          'judgeChoiceAnswer': this.judgeAnswers,
+          'usedTime': this.timeUsed
+        }
+        console.log(submittedPaper)
+        let result = await insertPaperResult(submittedPaper)
+        if (result.code === 200) {
+          return true
         }
         else {
-          return false;
+          return false
         }
       },
       //点击上一题
-      preItem() {
-        this.singleAnswer = '';
-        this.multipleAnswer = [];
-        this.judgeAnswer = '';
-        this.fillAnswer = '';
-        this.prevQue();
-        this.getCurrentAnswer();
+      preItem () {
+        this.singleAnswer = ''
+        this.multipleAnswer = []
+        this.judgeAnswer = ''
+        this.prevQue()
+        this.getCurrentAnswer()
       },
       //点击下一题
-      nextItem() {
-        this.singleAnswer = '';
-        this.multipleAnswer = [];
-        this.judgeAnswer = '';
-        this.fillAnswer = '';
-        this.nextQue();
-        this.getCurrentAnswer();
+      nextItem () {
+        this.singleAnswer = ''
+        this.multipleAnswer = []
+        this.judgeAnswer = ''
+        this.nextQue()
+        this.getCurrentAnswer()
       },
       //点击显示答题卡
-      toPaperCard() {
-        this.showPaperContainer = false;
-        this.showPaperCard = true;
+      toPaperCard () {
+        this.showPaperContainer = false
+        this.showPaperCard = true
       },
       //点击显示试卷问题
-      toPaperQue(index) {
-        this.singleAnswer = '';
-        this.multipleAnswer = [];
-        this.judgeAnswer = '';
-        this.fillAnswer = '';
-        this.cardQue(index);
-        this.getCurrentAnswer();
+      toPaperQue (index) {
+        this.singleAnswer = ''
+        this.multipleAnswer = []
+        this.judgeAnswer = ''
+        this.cardQue(index)
+        this.getCurrentAnswer()
 
-        this.showPaperCard = false;
-        this.showPaperContainer = true;
+        this.showPaperCard = false
+        this.showPaperContainer = true
       },
       //点击返回按钮
-      toBack() {
+      toBack () {
         MessageBox.confirm('系统将自动提交试卷，请确认是否离开考试?').then(action => {
           Toast({
             message: '可到我的页面查看成绩',
             duration: 1500
-          });
+          })
           //提交试卷
-          let result = this.handleSubmit();
-          if (result){
+          let result = this.handleSubmit()
+          if (result) {
             //清除sessionStorage数据
-            sessionStorage.removeItem("currentIndex");
-            sessionStorage.removeItem("singleAnswers");
-            sessionStorage.removeItem("multipleAnswers");
-            sessionStorage.removeItem("judgeAnswers");
-            sessionStorage.removeItem("judgeAnswers");
-            sessionStorage.removeItem("fillAnswers");
-            sessionStorage.removeItem("firstCurrentTime");
-            sessionStorage.removeItem("sno" + this.sno + "paperId" + this.paperId, result.msg);
+            sessionStorage.removeItem('currentIndex')
+            sessionStorage.removeItem('singleAnswers')
+            sessionStorage.removeItem('multipleAnswers')
+            sessionStorage.removeItem('judgeAnswers')
+            sessionStorage.removeItem('judgeAnswers')
+            sessionStorage.removeItem('fillAnswers')
+            sessionStorage.removeItem('firstCurrentTime')
+            sessionStorage.removeItem('sno' + this.sno + 'paperId' + this.paperId, result.msg)
             //清除vuex数据
-            this.refreshCurrentIndex(0);
-            this.refreshSingleAnswers([]);
-            this.refreshMultipleAnswers([]);
-            this.refreshJudgeAnswers([]);
-            this.refreshFillAnswers([]);
-            this.refreshFirstCurrentTime(0);
+            this.refreshCurrentIndex(0)
+            this.refreshSingleAnswers([])
+            this.refreshMultipleAnswers([])
+            this.refreshJudgeAnswers([])
+            this.refreshFillAnswers([])
+            this.refreshFirstCurrentTime(0)
             //返回试卷详情页面
-            this.$router.isBack = true;
+            this.$router.isBack = true
             this.$router.replace('/home')
           }
           else {
             Toast({
-              message:'交卷失败，数据库错误，请重新开始考试',
+              message: '交卷失败，数据库错误，请重新开始考试',
               duration: 1500
-            });
-            this.$router.isBack = true;
+            })
+            this.$router.isBack = true
             this.$router.replace('/home/paper/detail/' + this.paperId)
           }
         }, () => {
@@ -594,71 +537,51 @@
         })
 
       },
-      /*touchToBack() {
-        this.toBack()
-        // 进入页面时压入的本地连接已消耗，重新给history压入一个本地的连接
-        window.history.pushState(null, null, document.URL);
-      },*/
       //单选题点击change事件
-      singleChange(){
-        const {currentIndex, singleAnswer} = this;
-        this.recordSingleAnswers({currentIndex, singleAnswer});
+      singleChange () {
+        const {currentIndex, singleAnswer} = this
+        this.recordSingleAnswers({currentIndex, singleAnswer})
       },
       //多选题点击change事件
-      multipleChange(){
-        const {currentIndex, multipleAnswer} = this;
-        this.recordMultipleAnswers({currentIndex, multipleAnswer});
+      multipleChange () {
+        const {currentIndex, multipleAnswer} = this
+        this.recordMultipleAnswers({currentIndex, multipleAnswer})
       },
       //判断题点击change事件
-      judgeChange(){
-        const {currentIndex, judgeAnswer} = this;
-        this.recordJudgeAnswers({currentIndex, judgeAnswer});
-      },
-      //填空题点击change事件
-      fillChange(){
-        const {currentIndex, fillAnswer} = this;
-        this.recordFillAnswers({currentIndex, fillAnswer});
+      judgeChange () {
+        const {currentIndex, judgeAnswer} = this
+        this.recordJudgeAnswers({currentIndex, judgeAnswer})
       },
       //获取当前题目填写的答案
-      getCurrentAnswer(){
+      getCurrentAnswer () {
         //获取单选题当前答案
-        if (this.currentIndex < this.queNumInfo.singleNum) {
-          const currentAnswer = this.singleAnswers[this.currentIndex];
-          if(currentAnswer){
-            this.singleAnswer = currentAnswer;
-          }else{
-            const {currentIndex, singleAnswer} = this;
-            this.recordSingleAnswers({currentIndex, singleAnswer});
+        if (this.currentIndex < this.paperDetail.totalSingleChoice) {
+          const currentAnswer = this.singleAnswers[this.currentIndex]
+          if (currentAnswer) {
+            this.singleAnswer = currentAnswer
+          } else {
+            const {currentIndex, singleAnswer} = this
+            this.recordSingleAnswers({currentIndex, singleAnswer})
           }
         }
         //获取多选题当前答案
-        else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
-          const currentAnswer = this.multipleAnswers[this.currentIndex - this.queNumInfo.singleNum];
-          if(currentAnswer){
-            this.multipleAnswer = currentAnswer;
-          }else{
-            const {currentIndex, multipleAnswer} = this;
-            this.recordMultipleAnswers({currentIndex, multipleAnswer});
+        else if (this.currentIndex < (this.paperDetail.totalSingleChoice + this.paperDetail.totalMultiChoice)) {
+          const currentAnswer = this.multipleAnswers[this.currentIndex - this.paperDetail.totalSingleChoice]
+          if (currentAnswer) {
+            this.multipleAnswer = currentAnswer
+          } else {
+            const {currentIndex, multipleAnswer} = this
+            this.recordMultipleAnswers({currentIndex, multipleAnswer})
           }
         }
         //获取判断题当前答案
-        else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
-          const currentAnswer = this.judgeAnswers[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum];
-          if(currentAnswer){
-            this.judgeAnswer = currentAnswer;
-          }else{
-            const {currentIndex, judgeAnswer} = this;
-            this.recordJudgeAnswers({currentIndex, judgeAnswer});
-          }
-        }
-        //获取填空题当前答案
-        else {
-          const currentAnswer = this.fillAnswers[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum - this.queNumInfo.judgeNum];
-          if(currentAnswer){
-            this.fillAnswer = currentAnswer;
-          }else{
-            const {currentIndex, fillAnswer} = this;
-            this.recordFillAnswers({currentIndex, fillAnswer});
+        else if (this.currentIndex < (this.paperDetail.totalSingleChoice + this.paperDetail.totalMultiChoice + this.paperDetail.totalJudgeChoice)) {
+          const currentAnswer = this.judgeAnswers[this.currentIndex - this.paperDetail.totalSingleChoice - this.paperDetail.totalMultiChoice]
+          if (currentAnswer) {
+            this.judgeAnswer = currentAnswer
+          } else {
+            const {currentIndex, judgeAnswer} = this
+            this.recordJudgeAnswers({currentIndex, judgeAnswer})
           }
         }
       }
@@ -666,28 +589,24 @@
     components: {
       HeaderTop
     },
-    watch:{
-      currentIndex() {
-        this.percentage = parseInt((this.currentIndex+1)/this.queNumInfo.totalNum*100);
-        sessionStorage.removeItem("currentIndex");
-        sessionStorage.setItem("currentIndex",this.currentIndex)
+    watch: {
+      currentIndex () {
+        this.percentage = parseInt((this.currentIndex + 1) / this.paperDetail.totalQuestion * 100)
+        sessionStorage.removeItem('currentIndex')
+        sessionStorage.setItem('currentIndex', this.currentIndex)
       },
-      singleAnswers() {
-        sessionStorage.removeItem("singleAnswers");
-        sessionStorage.setItem("singleAnswers",JSON.stringify(this.singleAnswers))
+      singleAnswers () {
+        sessionStorage.removeItem('singleAnswers')
+        sessionStorage.setItem('singleAnswers', JSON.stringify(this.singleAnswers))
       },
-      multipleAnswers:function () {
-        sessionStorage.removeItem("multipleAnswers");
-        sessionStorage.setItem("multipleAnswers",JSON.stringify(this.multipleAnswers))
+      multipleAnswers: function () {
+        sessionStorage.removeItem('multipleAnswers')
+        sessionStorage.setItem('multipleAnswers', JSON.stringify(this.multipleAnswers))
       },
-      judgeAnswers() {
-        sessionStorage.removeItem("judgeAnswers");
-        sessionStorage.setItem("judgeAnswers",JSON.stringify(this.judgeAnswers))
+      judgeAnswers () {
+        sessionStorage.removeItem('judgeAnswers')
+        sessionStorage.setItem('judgeAnswers', JSON.stringify(this.judgeAnswers))
       },
-      fillAnswers() {
-        sessionStorage.removeItem("fillAnswers");
-        sessionStorage.setItem("fillAnswers",JSON.stringify(this.fillAnswers))
-      }
     }
   }
 </script>
@@ -762,7 +681,7 @@
             color #4ab8a1
           .que_content
             padding-bottom 10px
-        .single_option,.multiple_option,.judge_option,.fill_option
+        .single_option, .multiple_option, .judge_option, .fill_option
           margin-top 25px
           margin-bottom 25px
       .paper_button

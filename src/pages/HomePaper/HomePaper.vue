@@ -7,9 +7,9 @@
       </a>
 
       <div class="header_message" slot="right">
-        <viewer>
-          <img :src="courseImg">
-        </viewer>
+        <!--<viewer>-->
+          <!--<img :src="courseImg">-->
+        <!--</viewer>-->
       </div>
     </HeaderTop>
 

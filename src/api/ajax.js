@@ -9,9 +9,9 @@ import axios from 'axios'
  * @param {*} type 请求方法，默认为GET
  */
 // axios.defaults.withCredentials = true
-export default function ajax (url = '', data = {}, type = 'GET') {
+export default function ajax(url = '', data = {}, type = 'GET') {
   // 返回值 Promise对象 （异步返回的数据是response.data，而不是response）
-  return new Promise(function (resolve, reject) {
+  return new Promise(function(resolve, reject) {
     // （利用axios）异步执行ajax请求
     let promise // 这个内部的promise用来保存axios的返回值(promise对象)
     if (type === 'GET') {
@@ -28,7 +28,17 @@ export default function ajax (url = '', data = {}, type = 'GET') {
       promise = axios.get(url)
     } else {
       // 发送 post 请求
-      promise = axios.post(url, data)
+      switch (type) {
+        case 'PUT':
+          promise = axios.put(url, data)
+          break
+        case 'POST':
+          promise = axios.post(url, data)
+          break
+        case 'DELETE':
+          promise = axios.delete(url, data)
+          break
+      }
     }
     promise.then(response => {
       // 成功回调resolve()
