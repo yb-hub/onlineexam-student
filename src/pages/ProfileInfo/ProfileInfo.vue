@@ -10,20 +10,19 @@
     <!--个人信息展示-->
     <mt-cell title="头像（点击可预览）">
       <viewer>
-        <img :src="userInfo.stuImgSrc ? userInfo.stuImgSrc : require('../../common/imgs/profile.jpg')"
-             alt="头像" class="profile_img">
-        <!--<img src="../../common/imgs/profile.jpg" alt="头像" class="profile_img" v-else>-->
+<!--        <img :src="userInfo.stuImgSrc ? userInfo.stuImgSrc : require('../../common/imgs/profile.jpg')"-->
+<!--             alt="头像" class="profile_img">-->
+        <img src="../../common/imgs/yingmu.jpg" alt="头像" class="profile_img">
       </viewer>
       <i class="iconfont iconjiantou"></i>
     </mt-cell>
-    <mt-cell title="学号" :value="userInfo.sno"/>
-    <mt-cell title="姓名" :value="userInfo.stuName"/>
-    <mt-cell title="性别" :value="userInfo.stuSex"/>
-    <mt-cell title="邮箱" :value="userInfo.stuEmail || '暂无绑定邮箱'"/>
-    <mt-cell title="手机号" :value="userInfo.stuPhone || '暂无绑定手机号'"/>
-    <mt-cell title="注册时间" :value="userInfo.stuCreateTime | date-format"/>
-    <mt-cell title="最近登录时间" :value="userInfo.stuLastLoginTime | date-format"/>
-    <mt-cell title="账号状态" :value="userInfo.stuStatus ? '正常' : '禁用'"/>
+    <mt-cell title="学号" :value="userInfo.studentId"/>
+    <mt-cell title="姓名" :value="userInfo.name"/>
+    <mt-cell title="性别" :value="userInfo.sex===1 ?'男' : userInfo.sex!=null ? '女' : ''"/>
+    <mt-cell title="邮箱" :value="userInfo.email || '暂无绑定邮箱'"/>
+    <mt-cell title="手机号" :value="userInfo.phoneNumber || '暂无绑定手机号'"/>
+    <mt-cell title="注册时间" :value="userInfo.createTime | date-format"/>
+    <mt-cell title="账号状态" :value="userInfo.isDelete ===0 ? '正常' : '禁用'"/>
   </section>
 </template>
 

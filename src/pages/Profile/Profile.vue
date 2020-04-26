@@ -1,7 +1,7 @@
 <template>
   <div class="profile">
     <HeaderTop title="个人中心">
-      <div class="header_message" slot="right" @click="toReplyDetail" v-show="userInfo.sno">
+      <div class="header_message" slot="right" @click="toReplyDetail" v-show="userInfo.studentId">
         <span class="header_message_text">
           <i class="iconfont iconicoxinxiaoxi"></i>
           <!--显示未读消息条数-->
@@ -12,19 +12,19 @@
     </HeaderTop>
 
     <section class="profile-number">
-      <router-link :to="userInfo.sno ? '/profile/info' : '/login'" class="profile-link">
+      <router-link :to="userInfo.studentId ? '/profile/info' : '/login'" class="profile-link">
         <div class="profile_image">
-          <img :src="userInfo.stuImgSrc ? userInfo.stuImgSrc : require('../../common/imgs/profile.jpg')" alt="学生头像">
-          <!--<img src="../../common/imgs/profile.jpg" alt="头像" v-else>-->
+<!--          <img :src="userInfo.stuImgSrc ? userInfo.stuImgSrc : require('../../common/imgs/profile.jpg')" alt="学生头像">-->
+          <img src="../../common/imgs/yingmu.jpg" alt="头像">
         </div>
 
         <div class="user-info">
-          <p class="user-info-top" v-if="!userInfo.phone">{{userInfo.stuName || '登录/注册'}}</p>
+          <p class="user-info-top" v-if="userInfo.name">{{userInfo.name || '登录/注册'}}</p>
           <p>
             <span class="user-icon">
               <i class="iconfont iconshouji"></i>
             </span>
-            <span class="icon-mobile-number">{{userInfo.stuPhone || '暂无绑定手机号'}}</span>
+            <span class="icon-mobile-number">{{userInfo.phoneNumber || '暂无绑定手机号'}}</span>
           </p>
         </div>
         <span class="arrow">
@@ -127,7 +127,7 @@
         })
       },
       toDetail(path){
-        if (!this.$store.state.userInfo.sno){
+        if (!this.$store.state.userInfo.studentId){
           Toast({
             message:'请先登录系统',
             duration: 1000

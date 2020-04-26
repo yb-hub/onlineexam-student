@@ -18,13 +18,13 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-  import {reqPswChange} from '../../api'
+  import {updatePassword} from '../../api'
   import {Toast, MessageBox} from 'mint-ui'
   export default {
     name: "",
     data() {
       return {
-        sno:this.$store.state.userInfo.sno,
+        studentId:this.$store.state.userInfo.studentId,
         password:'',
         newPassword:'',
         newPasswordConfirm:''
@@ -32,9 +32,8 @@
     },
     methods: {
       async checkPswChange(){
-        const {sno, password, newPassword, newPasswordConfirm} = this;
-        let result = await reqPswChange({sno, password, newPassword, newPasswordConfirm});
-        if (result.statu == 0) {
+        let result = await updatePassword(this.studentId,this.password,this.newPassword,this.newPasswordConfirm);
+        if (result.code === 200) {
           Toast({
             message: '密码修改成功',
             iconClass: 'iconfont iconunie045',
@@ -42,22 +41,6 @@
           });
           this.$router.replace('/profile');
         }
-/*        else if (result.msg == '会话失效，请重新登录'){
-          MessageBox.confirm('会话失效，是否重新登录？').then(action => {
-            //点击确定按钮操作
-            //清空sessionStorage会话
-            sessionStorage.clear();
-            // 请求退出
-            this.$store.dispatch('logout');
-            Toast({
-              message: '请重新登录系统',
-              duration: 1500
-            });
-            this.$router.push('/login')
-          },() => {
-            //点击取消按钮操作
-          })
-        }*/
         else {
           Toast({
             message: result.msg,

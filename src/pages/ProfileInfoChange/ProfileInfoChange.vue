@@ -11,17 +11,15 @@
     <div class="profile_info_change_field">
       <label for="fileInput">
         <mt-cell :title="stuImg" is-link>
-          <!--<img :src="stuImgSrc" class="profile_img" v-if="userInfo.sno">-->
-          <!--<img src="../../common/imgs/profile.jpg" class="profile_img" v-else>-->
-          <img :src="stuImgSrc ? stuImgSrc : require('../../common/imgs/profile.jpg')" class="profile_img">
+          <img src="../../common/imgs/yingmu.jpg" class="profile_img">
         </mt-cell>
       </label>
       <input v-show="false" type="file" id="fileInput" class="img_file"
              accept="image/jpeg,image/jpg,image/png,image/gif" @change="getImgFile" ref="imgFile">
-      <mt-cell title="姓名" :value="stuName" is-link @click.native="changeName"></mt-cell>
-      <mt-cell title="姓别" :value="stuSex" is-link @click.native="changeSex"></mt-cell>
-      <mt-cell title="邮箱" :value="stuEmail" is-link @click.native="changeEmail"></mt-cell>
-      <mt-cell title="手机号" :value="stuPhone" is-link @click.native="changePhone"></mt-cell>
+      <mt-cell title="姓名" :value="name" is-link @click.native="changeName"></mt-cell>
+      <mt-cell title="姓别" :value="sex ===1 ? '男' : sex!=null ? '女' : ''" is-link @click.native="changeSex"></mt-cell>
+      <mt-cell title="邮箱" :value="email" is-link @click.native="changeEmail"></mt-cell>
+      <mt-cell title="手机号" :value="phoneNumber" is-link @click.native="changePhone"></mt-cell>
       <mt-button type="primary" size="large" @click.native="changeInfo">保存修改</mt-button>
     </div>
 
@@ -32,105 +30,123 @@
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import {Toast, MessageBox } from 'mint-ui'
   import {mapState} from 'vuex'
-  import {reqInfoChange, reqUserInfoBySno} from '../../api'
+  import {reqInfoChange, reqUserInfoBySno,updateStudent} from '../../api'
   export default {
     name: "",
     data() {
       return {
         stuImg:'点击上传头像',
         stuImgSrc:this.$store.state.userInfo.stuImgSrc,
-        stuName:this.$store.state.userInfo.stuName,
-        stuSex:this.$store.state.userInfo.stuSex,
-        stuEmail:this.$store.state.userInfo.stuEmail,
-        stuPhone:this.$store.state.userInfo.stuPhone,
+        name:this.$store.state.userInfo.name,
+        sex:this.$store.state.userInfo.sex,
+        email:this.$store.state.userInfo.email,
+        phoneNumber:this.$store.state.userInfo.phoneNumber,
         tempImgSrc:this.$store.state.userInfo.stuImgSrc
       }
     },
     methods: {
       changeName(){
-        MessageBox.prompt('修改姓名','',{inputValue: this.stuName,
+        MessageBox.prompt('修改姓名','',{inputValue: this.name,
           inputValidator:function(v){return v !== '';},
           inputErrorMessage:'姓名不能为空'}).then(({ value, action }) => {
-          this.stuName = value;
+          this.name = value;
         },() => {});
       },
       changeSex(){
-        MessageBox.prompt('修改姓别','',{inputValue: this.stuSex,
+        MessageBox.prompt('修改姓别','',{inputValue: this.sex ===1 ? '男' : this.sex!=null ? '女' : '',
           inputValidator:function(v){return v == '男' || v == '女';},
           inputErrorMessage:'请输入男或者女'}).then(({ value, action }) => {
-          this.stuSex = value;
+          this.sex = value === '男' ? 1 : 0;
         },() => {});
       },
       changeEmail(){
-        MessageBox.prompt('修改邮箱','',{inputValue: this.stuEmail,
+        MessageBox.prompt('修改邮箱','',{inputValue: this.email,
           inputValidator:function(v){return /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(v);},
           inputErrorMessage:'请输入正确的邮箱'}).then(({ value, action }) => {
-          this.stuEmail = value;
+          this.email = value;
         },() => {});
       },
       changePhone(){
-        MessageBox.prompt('修改手机号','',{inputValue: this.stuPhone,
+        MessageBox.prompt('修改手机号','',{inputValue: this.phoneNumber,
           inputValidator:function(v){return /^1[34578]\d{9}$/.test(v);},
           inputErrorMessage:'请输入正确的手机号'}).then(({ value, action }) => {
-          this.stuPhone = value;
+          this.phoneNumber = value;
         },() => {});
       },
       async changeInfo(){
-        // 声明一个FormData对象，有file以表单方式发送请求
-        var formData = new window.FormData();
-        const {stuName, stuSex, stuEmail, stuPhone} = this;
-        var stuImgSrc = this.$refs.imgFile.files[0];
-        if (typeof stuImgSrc !== 'undefined' && stuImgSrc.size > 4194304) {
-          // console.log(stuImgSrc.size)
+        //console.log(this.userInfo.studentId)
+        let result = await updateStudent(this.userInfo.studentId,this.name,this.sex,this.email,this.phoneNumber)
+        if (result.code === 200){
+          var user = result.data;
+          // console.log(this.tempImgSrc)
+          //user.stuImgSrc = this.tempImgSrc;
+          this.$store.dispatch('recordUser', user);
+          //更新sessionStorage中userInfo
+          sessionStorage.setItem("userInfo",JSON.stringify(user));
           Toast({
-            message: '请选择4M以内的图片',
+            message: result.msg,
+            iconClass: 'iconfont iconunie045',
             duration: 1500
           });
-        } else {
-          formData.append('stuImgSrc',stuImgSrc);
-          formData.append('stuName',this.stuName);
-          formData.append('stuSex',this.stuSex);
-          formData.append('stuEmail',this.stuEmail);
-          formData.append('stuPhone',this.stuPhone);
-          formData.append('sno',this.$store.state.userInfo.sno);
-          // console.log(formData.get('stuImgSrc'))
-          let result = await reqInfoChange(formData);
-          if (result.statu == 0){
-            var user = result.data;
-            // console.log(this.tempImgSrc)
-            user.stuImgSrc = this.tempImgSrc;
-            this.$store.dispatch('recordUser', user);
-            //更新sessionStorage中userInfo
-            sessionStorage.setItem("userInfo",JSON.stringify(user));
-            Toast({
-              message: result.msg,
-              iconClass: 'iconfont iconunie045',
-              duration: 1500
-            });
-            this.$router.push('/profile');
-          }
-          else if (result.msg == '会话失效，请重新登录') {
-            MessageBox.confirm('会话失效，是否重新登录？').then(action => {
-              //点击确定按钮操作
-              //清空sessionStorage会话
-              sessionStorage.clear();
-              // 请求退出
-              this.$store.dispatch('logout');
-              Toast('请重新登录系统');
-              this.$router.push('/login')
-            }, () => {
-              //点击取消按钮操作
-            })
-          }
-          else {
-            Toast({
-              message: result.msg,
-              position: 'bottom',
-              duration: 1500
-            });
-          }
+          this.$router.push('/profile');
         }
       },
+      // async changeInfo(){
+      //   // 声明一个FormData对象，有file以表单方式发送请求
+      //   var formData = new window.FormData();
+      //   const {stuName, stuSex, stuEmail, stuPhone} = this;
+      //   var stuImgSrc = this.$refs.imgFile.files[0];
+      //   if (typeof stuImgSrc !== 'undefined' && stuImgSrc.size > 4194304) {
+      //     // console.log(stuImgSrc.size)
+      //     Toast({
+      //       message: '请选择4M以内的图片',
+      //       duration: 1500
+      //     });
+      //   } else {
+      //     formData.append('stuImgSrc',stuImgSrc);
+      //     formData.append('stuName',this.stuName);
+      //     formData.append('stuSex',this.stuSex);
+      //     formData.append('stuEmail',this.stuEmail);
+      //     formData.append('stuPhone',this.stuPhone);
+      //     formData.append('sno',this.$store.state.userInfo.sno);
+      //     // console.log(formData.get('stuImgSrc'))
+      //     let result = await reqInfoChange(formData);
+      //     if (result.statu == 0){
+      //       var user = result.data;
+      //       // console.log(this.tempImgSrc)
+      //       user.stuImgSrc = this.tempImgSrc;
+      //       this.$store.dispatch('recordUser', user);
+      //       //更新sessionStorage中userInfo
+      //       sessionStorage.setItem("userInfo",JSON.stringify(user));
+      //       Toast({
+      //         message: result.msg,
+      //         iconClass: 'iconfont iconunie045',
+      //         duration: 1500
+      //       });
+      //       this.$router.push('/profile');
+      //     }
+      //     else if (result.msg == '会话失效，请重新登录') {
+      //       MessageBox.confirm('会话失效，是否重新登录？').then(action => {
+      //         //点击确定按钮操作
+      //         //清空sessionStorage会话
+      //         sessionStorage.clear();
+      //         // 请求退出
+      //         this.$store.dispatch('logout');
+      //         Toast('请重新登录系统');
+      //         this.$router.push('/login')
+      //       }, () => {
+      //         //点击取消按钮操作
+      //       })
+      //     }
+      //     else {
+      //       Toast({
+      //         message: result.msg,
+      //         position: 'bottom',
+      //         duration: 1500
+      //       });
+      //     }
+      //   }
+      // },
       getImgFile(){
         if (typeof this.$refs.imgFile.files[0] === 'undefined') {
           Toast({
