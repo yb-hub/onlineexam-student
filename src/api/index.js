@@ -163,7 +163,7 @@ export const insertPaperResult = (submittedPaper) => ajax(BASE_URL2 + '/paper/re
 export const login = (sno,stuPsw) => ajax(BASE_URL2 + '/login', {'studentId': sno,'password': stuPsw},'POST')
 
 //考生密码修改
-export const updatePassword = (studentId,password,newPassword,newPasswordConfirm) => ajax(BASE_URL2 + '/password'+studentId,{'password':password,'newPassword':newPassword,'newPasswordConfirm':newPasswordConfirm},'PUT')
+export const updatePassword = (studentId,password,newPassword,newPasswordConfirm) => ajax(BASE_URL2 + '/password/'+studentId,{'password':password,'newPassword':newPassword,'newPasswordConfirm':newPasswordConfirm},'PUT')
 
 //修改考生信息
 export const updateStudent = (studentId,name,sex,email,phoneNumber) => ajax(BASE_URL2 + '/'+studentId,{'name':name,'sex':sex,'email':email,'phoneNumber':phoneNumber},'PUT')

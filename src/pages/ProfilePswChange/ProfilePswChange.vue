@@ -43,7 +43,7 @@
         }
         else {
           Toast({
-            message: result.msg,
+            message: result.message,
             duration: 1500
           });
         }

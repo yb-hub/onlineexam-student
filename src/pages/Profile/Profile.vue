@@ -56,7 +56,7 @@
       <!--退出登录-->
       <div class="login_out" :class="isSelect?'opacity':''"
            @touchstart="toggleSelect" @touchend="toggleSelect"
-           v-show="userInfo.sno" @click="logout">
+           v-show="userInfo.studentId" @click="logout">
         退出登录
       </div>
     </section>
