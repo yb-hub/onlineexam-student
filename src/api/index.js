@@ -151,7 +151,7 @@ export const reqFillByAnswerId = ({answerId}) => ajax(BASE_URL + '/getFillByAnsw
 export const getCourseList = () => ajax(BASE_URL2 + '/courses')
 
 //获取考试练习页列表（课程名称，练习试卷列表）
-export const getPaperByCourseId = (id) => ajax(BASE_URL2 + '/paper/course/'+id)
+export const getPaperByCourseId = (id) => ajax(BASE_URL2 + '/paper/course/' + id)
 
 //通过试卷id获取试卷详情信息
 export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/' + id)
@@ -159,6 +159,7 @@ export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/'
 //将考生试卷提交到后台
 export const insertPaperResult = (submittedPaper) => ajax(BASE_URL2 + '/paper/result', submittedPaper,'POST')
 
+<<<<<<< HEAD
 //获取考生的成绩单列表
 export const getPaperScoreByStuId = (studentId) => ajax(BASE_URL2 + '/profile/stuScore/'+studentId)
 
@@ -183,5 +184,12 @@ export const updateStudentQuestion = (studentId,questionId,isCollect) => ajax(BA
 //获取考生的所有收藏试题
 export const getStudentQuestionCollect = (studentId) => ajax(BASE_URL2 + '/question/collect/'+studentId)
 
-//学生登录
-export const studentLogin = (studentId,password) => ajax(BASE_URL2 + '/login',{"studentId":studentId,"password":password},"POST")
+//考生登录
+export const login = (sno,stuPsw) => ajax(BASE_URL2 + '/login', {'studentId': sno,'password': stuPsw},'POST')
+
+//考生密码修改
+export const updatePassword = (studentId,password,newPassword,newPasswordConfirm) => ajax(BASE_URL2 + '/password/'+studentId,{'password':password,'newPassword':newPassword,'newPasswordConfirm':newPasswordConfirm},'PUT')
+
+//修改考生信息
+export const updateStudent = (studentId,name,sex,email,phoneNumber) => ajax(BASE_URL2 + '/'+studentId,{'name':name,'sex':sex,'email':email,'phoneNumber':phoneNumber},'PUT')
+

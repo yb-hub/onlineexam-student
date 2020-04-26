@@ -5,12 +5,15 @@
       <a href="javascript:" slot="left" class="go_back" @click="$router.goBack()">
         <i class="iconfont iconxiazai6"></i>返回
       </a>
+<<<<<<< HEAD
 
       <div class="header_message" slot="right">
         <!--<viewer>-->
           <!--<img src="../../common/imgs/wenlixueyuan.jpg">-->
         <!--</viewer>-->
       </div>
+=======
+>>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
     </HeaderTop>
 
     <!--显示登录注册页面Vue标志图标-->
@@ -23,6 +26,7 @@
     <!--实现登录功能-->
     <!--<transition name="el-fade-in">-->
     <div class="login-wrap" v-show="showLogin">
+<<<<<<< HEAD
         <mt-field label="学号" placeholder="请输入8位数字学号" v-model="sno" :state="snoState" @blur.native.capture="checkSno"/>
         <mt-field label="密码" placeholder="请输入密码" type="password" v-model="stuPsw" :state="pswState" @blur.native.capture="checkPsw" @keyup.enter.native="checkLogin"/>
         <mt-button type="primary" size="large" @click.native="checkLogin">登录</mt-button>
@@ -57,14 +61,19 @@
                 :state="newSecurityCodeConfirmState" @blur.native.capture="checknewSecurityCodeConfirm"
                 @keyup.enter.native="stuRegister"/>
       <mt-button type="primary" size="large" @click.native="stuRegister">注册</mt-button>
+=======
+      <mt-field label="学号" placeholder="请输入8位数字学号" v-model="sno" :state="snoState" @blur.native.capture="checkSno"/>
+      <mt-field label="密码" placeholder="请输入密码" type="password" v-model="stuPsw" :state="pswState"
+                @blur.native.capture="checkPsw" @keyup.enter.native="checkLogin"/>
+      <mt-button type="primary" size="large" @click.native="checkLogin">登录</mt-button>
+>>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
 
-      <div class="toggle-register">
-        <span @click="toLogin">已有账号？马上登录</span>
+      <div class="toggle-login">
+        <span @click="toRegister"></span>
         <span @click="toFindPsw">忘记密码？</span>
       </div>
     </div>
     <!--</transition>-->
-
     <!--实现找回密码功能-->
     <div class="find-psw-wrap" v-show="showFindPsw">
       <mt-field label="学号" placeholder="请输入8位数字学号" v-model="findSno"
@@ -92,77 +101,83 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
+<<<<<<< HEAD
   import {reqLogin, reqRegister, reqFindPsw,studentLogin} from '../../api'
+=======
+  import {reqLogin, reqRegister, reqFindPsw,login} from '../../api'
+>>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
   import {Toast, MessageBox} from 'mint-ui'
+
   export default {
-    name: "",
-    data() {
+  name: '',
+  data() {
       return {
         showLogin: true,
         showRegister: false,
-        showFindPsw:false,
+        showFindPsw: false,
         sno: '',
-        snoState:'',
+        snoState: '',
         stuPsw: '',
-        pswState:'',
+        pswState: '',
         newSno: '',
-        newSnoState:'',
+        newSnoState: '',
         newPsw: '',
-        newPswState:'',
-        newPswConfirm:'',
-        newPswConfirmState:'',
-        newName:'',
-        newNameState:'',
-        newEmail:'',
-        newEmailState:'',
-        newPhone:'',
-        newPhoneState:'',
-        newSecurityCode:'',
-        newSecurityCodeState:'',
-        newSecurityCodeConfirm:'',
-        newSecurityCodeConfirmState:'',
-        findSno:'',
-        findSnoState:'',
-        findPhone:'',
-        findPhoneState:'',
-        findSecurityCode:'',
-        findSecurityCodeState:'',
-        findNewPsw:'',
-        findNewPswState:'',
-        findNewPswConfirm:'',
-        findNewPswConfirmState:''
+        newPswState: '',
+        newPswConfirm: '',
+        newPswConfirmState: '',
+        newName: '',
+        newNameState: '',
+        newEmail: '',
+        newEmailState: '',
+        newPhone: '',
+        newPhoneState: '',
+        newSecurityCode: '',
+        newSecurityCodeState: '',
+        newSecurityCodeConfirm: '',
+        newSecurityCodeConfirmState: '',
+        findSno: '',
+        findSnoState: '',
+        findPhone: '',
+        findPhoneState: '',
+        findSecurityCode: '',
+        findSecurityCodeState: '',
+        findNewPsw: '',
+        findNewPswState: '',
+        findNewPswConfirm: '',
+        findNewPswConfirmState: ''
       }
     },
     methods: {
       // 登录校验学号
-      checkSno(){
+      checkSno() {
         if (this.sno === '') {
           this.snoState = '';
-        }
-        else if (!/^\d{8}$/.test(this.sno)){
+        } else if (!/^\d{8}$/.test(this.sno)) {
           this.snoState = 'error';
-        }
-        else{
+        } else {
           this.snoState = 'success';
         }
       },
       // 登录校验密码
-      checkPsw(){
+      checkPsw() {
         if (this.sno === '') {
           this.pswState = '';
-        }
-        else if (this.stuPsw.length < 6){
+        } else if (this.stuPsw.length < 6) {
           this.pswState = 'error';
-        }
-        else {
+        } else {
           this.pswState = 'success';
         }
       },
       // 异步学生登录
+<<<<<<< HEAD
       async checkLogin(){
         // const {sno,stuPsw} = this
         // let result = await  reqLogin({sno,stuPsw})
         let result = await studentLogin(this.sno,this.stuPsw);
+=======
+      async checkLogin() {
+        let result = await login(this.sno, this.stuPsw);
+>>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
         if (result.code === 200) {
           const user = result.data;
           Toast({
@@ -171,13 +186,12 @@
             duration: 1500
           });
           //将数据存储到sessionStorage中，防止刷新页面自动退出
-          sessionStorage.setItem("userInfo",JSON.stringify(user));
+          sessionStorage.setItem("userInfo", JSON.stringify(user));
           // 将user保存到vuex的state
           this.$store.dispatch('recordUser', user);
           // 去个人中心界面
           this.$router.replace('/profile')
-        }
-        else {
+        } else {
           Toast({
             message: result.msg,
             duration: 1500
@@ -185,7 +199,7 @@
         }
       },
       //点击展示登录面板
-      toLogin(){
+      toLogin() {
         this.sno = '';
         this.snoState = '';
         this.stuPsw = '';
@@ -195,7 +209,7 @@
         this.showFindPsw = false;
       },
       //点击展示注册面板
-      toRegister(){
+      toRegister() {
         this.newSno = '';
         this.newSnoState = '';
         this.newPsw = '';
@@ -217,7 +231,7 @@
         this.showFindPsw = false;
       },
       //点击展示找回密码面板
-      toFindPsw(){
+      toFindPsw() {
         this.findSno = '';
         this.findSnoState = '';
         this.findPhone = '';
@@ -233,109 +247,103 @@
         this.showFindPsw = true;
       },
       // 注册校验学号
-      checkNewSno(){
+      checkNewSno() {
         if (this.newSno === '') {
           this.newSnoState = '';
-        }
-        else if (!/^\d{12}$/.test(this.newSno)){
+        } else if (!/^\d{12}$/.test(this.newSno)) {
           this.newSnoState = 'error';
-        }
-        else {
+        } else {
           this.newSnoState = 'success';
         }
       },
       // 注册校验密码
-      checkNewPsw(){
+      checkNewPsw() {
         if (this.newPsw === '') {
           this.newPswState = '';
-        }
-        else if (this.newPsw.length >= 6){
+        } else if (this.newPsw.length >= 6) {
           this.newPswState = 'success';
-        }
-        else {
+        } else {
           this.newPswState = 'error';
         }
       },
       //注册校验再次输入密码
-      checkNewPswConfirm(){
+      checkNewPswConfirm() {
         if (this.newPswConfirm === '') {
           this.newPswConfirmState = '';
-        }
-        else if (this.newPswConfirm.length >= 6 && this.newPswConfirm === this.newPsw){
+        } else if (this.newPswConfirm.length >= 6 && this.newPswConfirm === this.newPsw) {
           this.newPswConfirmState = 'success';
-        }
-        else {
+        } else {
           this.newPswConfirmState = 'error';
         }
       },
       //注册校验姓名
-      checkNewName(){
-        if (this.newName === ''){
+      checkNewName() {
+        if (this.newName === '') {
           this.newNameState = '';
-        }
-        else {
+        } else {
           this.newNameState = 'success';
         }
       },
       //注册校验邮箱
-      checkNewEmail(){
+      checkNewEmail() {
         if (this.newEmail === '') {
           this.newEmailState = '';
-        }
-        else if (!/^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(this.newEmail)){
+        } else if (!/^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(this.newEmail)) {
           this.newEmailState = 'error';
-        }
-        else {
+        } else {
           this.newEmailState = 'success';
         }
       },
       //注册校验手机号
-      checkNewPhone(){
+      checkNewPhone() {
         if (this.newPhone === '') {
           this.newPhoneState = '';
-        }
-        else if (!/^1[34578]\d{9}$/.test(this.newPhone)){
+        } else if (!/^1[34578]\d{9}$/.test(this.newPhone)) {
           this.newPhoneState = 'error';
-        }
-        else {
+        } else {
           this.newPhoneState = 'success';
         }
       },
       //注册校验安全码
-      checknewSecurityCode(){
+      checknewSecurityCode() {
         if (this.newSecurityCode === '') {
           this.newSecurityCodeState = '';
-        }
-        else if (this.newSecurityCode.length >= 6){
+        } else if (this.newSecurityCode.length >= 6) {
           this.newSecurityCodeState = 'success';
-        }
-        else {
+        } else {
           this.newSecurityCodeState = 'error';
         }
       },
       //注册校验再次输入安全码
-      checknewSecurityCodeConfirm(){
+      checknewSecurityCodeConfirm() {
         if (this.newSecurityCodeConfirm === '') {
           this.newSecurityCodeConfirmState = '';
-        }
-        else if (this.newSecurityCodeConfirm.length >= 6 && this.newSecurityCodeConfirm === this.newSecurityCode){
+        } else if (this.newSecurityCodeConfirm.length >= 6 && this.newSecurityCodeConfirm === this.newSecurityCode) {
           this.newSecurityCodeConfirmState = 'success';
-        }
-        else {
+        } else {
           this.newSecurityCodeConfirmState = 'error';
         }
       },
       //异步学生注册
-      async stuRegister(){
+      async stuRegister() {
         const {newSno, newPsw, newPswConfirm, newName, newEmail, newPhone, newSecurityCode, newSecurityCodeConfirm} = this;
-        let result = await reqRegister({newSno, newPsw, newPswConfirm, newName, newEmail, newPhone, newSecurityCode, newSecurityCodeConfirm});
+        let result = await reqRegister({
+          newSno,
+          newPsw,
+          newPswConfirm,
+          newName,
+          newEmail,
+          newPhone,
+          newSecurityCode,
+          newSecurityCodeConfirm
+        });
         if (result.statu == 0) {
           MessageBox.confirm('注册成功，是否自动登录?').then(action => {
             //点击确定按钮操作
             this.sno = this.newSno
             this.stuPsw = this.newPsw
             this.checkLogin();
-          },() => {
+          }, () => {
             //点击取消按钮操作
             this.newSno = '';
             this.newSnoState = '';
@@ -354,8 +362,7 @@
             this.newSecurityCodeConfirm = '';
             this.newSecurityCodeConfirmState = '';
           })
-        }
-        else {
+        } else {
           Toast({
             message: result.msg,
             duration: 1500
@@ -363,82 +370,72 @@
         }
       },
       //获取验证码按钮点击事件函数
-      getCaptcha(){
+      getCaptcha() {
         Toast({
           message: '没钱接入短信验证码平台哈哈哈...将就用免费的安全码找回呗',
           duration: 2000,
-          position:'bottom'
+          position: 'bottom'
         });
       },
       //找回密码校验学号
-      checkfindSno(){
+      checkfindSno() {
         if (this.findSno === '') {
           this.findSnoState = '';
-        }
-        else if (!/^\d{12}$/.test(this.findSno)){
+        } else if (!/^\d{12}$/.test(this.findSno)) {
           this.findSnoState = 'error';
-        }
-        else {
+        } else {
           this.findSnoState = 'success';
         }
       },
       //找回密码校验学号
-      checkfindPhone(){
+      checkfindPhone() {
         if (this.findPhone === '') {
           this.findPhoneState = '';
-        }
-        else if (!/^1[34578]\d{9}$/.test(this.findPhone)){
+        } else if (!/^1[34578]\d{9}$/.test(this.findPhone)) {
           this.findPhoneState = 'error';
-        }
-        else {
+        } else {
           this.findPhoneState = 'success';
         }
       },
       //找回密码校验学号
-      checkfindSecurityCode(){
+      checkfindSecurityCode() {
         if (this.findSecurityCode === '') {
           this.findSecurityCodeState = '';
-        }
-        else if (this.findSecurityCode.length >= 6){
+        } else if (this.findSecurityCode.length >= 6) {
           this.findSecurityCodeState = 'success';
-        }
-        else {
+        } else {
           this.findSecurityCodeState = 'error';
         }
       },
       //找回密码校验学号
-      checkfindNewPsw(){
+      checkfindNewPsw() {
         if (this.findNewPsw === '') {
           this.findNewPswState = '';
-        }
-        else if (this.findNewPsw.length >= 6){
+        } else if (this.findNewPsw.length >= 6) {
           this.findNewPswState = 'success';
-        }
-        else {
+        } else {
           this.findNewPswState = 'error';
         }
       },
       //找回密码校验学号
-      checkfindNewPswConfirm(){
+      checkfindNewPswConfirm() {
         if (this.findNewPswConfirm === '') {
           this.findNewPswConfirmState = '';
-        }
-        else if (this.findNewPswConfirm.length >= 6 && this.findNewPswConfirm === this.findNewPsw){
+        } else if (this.findNewPswConfirm.length >= 6 && this.findNewPswConfirm === this.findNewPsw) {
           this.findNewPswConfirmState = 'success';
-        }
-        else {
+        } else {
           this.findNewPswConfirmState = 'error';
         }
       },
       //异步学生找回密码
-      async stuFindPsw(){
+      async stuFindPsw() {
         const {findSno, findPhone, findSecurityCode, findNewPsw, findNewPswConfirm} = this;
         let result = await reqFindPsw({findSno, findPhone, findSecurityCode, findNewPsw, findNewPswConfirm});
         if (result.statu == 0) {
           MessageBox.confirm('设置新密码成功，是否跳转到登录页面?').then(action => {
             //点击确定按钮操作
             this.toLogin();
-          },() => {
+          }, () => {
             //点击取消按钮操作
             this.findSno = '';
             this.findSnoState = '';
@@ -451,8 +448,7 @@
             this.findNewPswConfirm = '';
             this.findNewPswConfirmState = '';
           })
-        }
-        else {
+        } else {
           Toast({
             message: result.msg,
             duration: 1500
@@ -460,7 +456,7 @@
         }
       }
     },
-    components:{
+    components: {
       HeaderTop
     }
 
@@ -471,58 +467,74 @@
   .login-container
     padding-top 45px
     background-color #f5f5f5
-    >h3
+
+    > h3
       padding 20px
+
     .login-logo
       width 90%
       margin 20px auto
       text-align center
       margin-bottom 20px
+<<<<<<< HEAD
       //background-image url("../../common/imgs/java.png"), url("../../common/imgs/cplus.png"), url("../../common/imgs/php.png"), url("../../common/imgs/android.png"), url("../../common/imgs/h5.png"), url("../../common/imgs/ios.png"), url("../../common/imgs/js.png"), url("../../common/imgs/python.png")
+=======
+>>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
       background-size 50px 50px, 50px 50px, 50px 50px, 50px 50px, 44px 44px, 32px 32px, 28px 28px, 32px 32px
       background-repeat no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat
       background-position 2% 5%, 95% 5%, 90% 40%, 12% 42%, 95% 80%, 5% 78%, 80% 100%, 18% 100%
+
       .logo_img
         width 160px
         height 160px
         border-radius 80px
+
     .login-wrap
       width 90%
       margin 0 auto
+
       .mint-button
         background-color #4ab8a1
         margin-top 15px
         margin-bottom 15px
+
       .toggle-login
         display flex
         justify-content space-between
         color #4ab8a1
+
     .register-wrap
       width 90%
       margin 0 auto
       padding-bottom 80px
+
       .mint-button
         background-color #4ab8a1
         margin-top 15px
         margin-bottom 15px
+
       .toggle-register
         display flex
         justify-content space-between
         color #4ab8a1
+
     .find-psw-wrap
       width 90%
       margin 0 auto
       padding-bottom 80px
+
       .get-captcha
         height 30px
         background-color #4ab8a1
         color #fff
         border-radius 2px
         border 0
+
       .mint-button
         background-color #4ab8a1
         margin-top 15px
         margin-bottom 15px
+
       .toggle-find-psw
         display flex
         justify-content space-between
