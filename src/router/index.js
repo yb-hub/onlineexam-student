@@ -96,7 +96,7 @@ export default new VueRouter({
       }
     },
     {
-      path: '/wrong/detail/:paperId',
+      path: '/wrong/detail/:examId',
       component: WrongDetail
     },
 
@@ -146,7 +146,7 @@ export default new VueRouter({
       component: FillCollection
     },
     {
-      path:'/profile/stuscore/detail/:paperId',
+      path:'/profile/stuscore/detail/:id',
       component:ProfileScoreDetail
     },
     {

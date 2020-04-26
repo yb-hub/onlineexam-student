@@ -18,42 +18,39 @@
     <!--查看错题试卷-->
     <div class="wrong_list_container" v-if="wrongPapersList.length">
       <mt-loadmore :top-method="loadTop" ref="loadmore">
-        <div class="wrong_list" v-for="(item, index) in wrongPapersList" :key="item.paperId">
+        <div class="wrong_list" v-for="(item, index) in wrongPapersList" :key="item.examId">
           <div class="wrong_list_item" :class="{'corner_new':index == 0}">
             <div class="wrong_title">
-              {{item.paperName}}
+              {{item.paperTitle}}
             </div>
             <div class="wrong_type">
-              试卷类型：{{item.paperType == 1 ? '随机组卷' : '固定组卷'}}
+              试卷类型：{{item.paperType == 1 ? '练习组卷' : '考试组卷'}}
             </div>
             <div class="wrong_difficulty">
               <span>难度系数：</span>
-              <Star :score="item.paperDifficulty" :size="24" />
+              <Star :score="item.paperDifficultyDegree" :size="24" />
             </div>
             <div class="wrong_item">
-              最终成绩：<span class="wrong_important">{{item.score || 0}}</span>分{{item.score == null ? '（强制关闭考试页面退出考试）' : ''}}
+              最终成绩：<span class="wrong_important">{{item.totalScore}}</span>分
             </div>
             <div class="wrong_item">
-              试卷题数：总共<span class="wrong_important">{{item.totalNum}}</span>道，答错<span class="wrong_important">{{item.totalErrorNum}}</span>道
+              试卷题数：总共<span class="wrong_important">{{item.paperTotalQuestion}}</span>道
             </div>
             <div class="wrong_item">
-              单选题：总共<span class="wrong_important">{{item.singleNum}}</span>道，答错<span class="wrong_important">{{item.singleErrorNum}}</span>道，每题<span class="wrong_important">{{item.singleScore}}</span>分
+              单选题：总共<span class="wrong_important">{{item.totalSingle}}</span>道，答对<span class="wrong_important">{{item.rightSingle}}</span>道
             </div>
             <div class="wrong_item">
-              多选题：总共<span class="wrong_important">{{item.multipleNum}}</span>道，答错<span class="wrong_important">{{item.multipleErrorNum}}</span>道，每题<span class="wrong_important">{{item.multipleScore}}</span>分
+              多选题：总共<span class="wrong_important">{{item.totalMulti}}</span>道，答对<span class="wrong_important">{{item.rightMulti}}</span>道
             </div>
             <div class="wrong_item">
-              判断题：总共<span class="wrong_important">{{item.judgeNum}}</span>道，答错<span class="wrong_important">{{item.judgeErrorNum}}</span>道，每题<span class="wrong_important">{{item.judgeScore}}</span>分
-            </div>
-            <div class="wrong_item">
-              填空题：总共<span class="wrong_important">{{item.fillNum}}</span>道，答错<span class="wrong_important">{{item.fillErrorNum}}</span>道，每题<span class="wrong_important">{{item.fillScore}}</span>分
+              判断题：总共<span class="wrong_important">{{item.totalJudge}}</span>道，答对<span class="wrong_important">{{item.rightJudge}}</span>道
             </div>
             <div class="wrong_btn">
               <div>
-                <mt-button size="small" type="danger" @click.native="toWrongDetail(item.paperId)" :disabled="item.score == null">查看错题记录</mt-button>
+                <mt-button size="small" type="danger" @click.native="toWrongDetail(item.examId)" :disabled="item.totalScore == null">查看错题记录</mt-button>
               </div>
               <div>
-                <mt-button size="small" type="primary" @click.native="toScoreDetail(item.paperId)" :disabled="item.score == null">查看成绩报告</mt-button>
+                <mt-button size="small" type="primary" @click.native="toScoreDetail(item.examId)" :disabled="item.totalScore == null">查看成绩报告</mt-button>
               </div>
             </div>
           </div>
@@ -79,7 +76,7 @@
   import BackToTop from '../../components/BackToTop'
   import Star from '../../components/Star/Star.vue'
   import {mapState} from 'vuex'
-  import {reqWrongLanguagesInfo, reqWrongAllPapers, reqWrongPapersByLangId} from '../../api'
+  import {getPaperWrongByStudentId,getWrongCourse,getWrongPapersByCourseId} from '../../api'
   import {Toast, Indicator} from 'mint-ui'
   export default {
     name: "",
@@ -100,15 +97,15 @@
         options: {
           activeColor: '#1d98bd',
           // 可在这里指定labelKey为你数据里文字对应的字段
-          labelKey: 'langName'
+          labelKey: 'name'
         },
         wrongPapersList:[],
         isWrongPapersList:false
       }
     },
     created(){
-      this.getWrongLanguagesInfo();
-      this.getWrongAllPapers();
+      this.getWrongCourse();
+      this.getPaperWrongByStudentId();
     },
     methods: {
       loadTop() {
@@ -121,9 +118,9 @@
           this.$refs.loadmore.onTopLoaded()
         }, 1000)
       },
-      async getWrongLanguagesInfo(){
-        let result = await reqWrongLanguagesInfo();
-        if (result.statu == 0){
+      async getWrongCourse(){
+        let result = await getWrongCourse(this.sno);
+        if (result.code === 200){
           this.items = result.data
         }
         else {
@@ -133,10 +130,9 @@
           });
         }
       },
-      async getWrongAllPapers(){
-        const {sno} = this;
-        let result = await reqWrongAllPapers({sno});
-        if (result.statu == 0){
+      async getPaperWrongByStudentId(){
+        let result = await getPaperWrongByStudentId(this.sno);
+        if (result.code === 200){
           this.wrongPapersList = result.data;
         }
         else {
@@ -146,9 +142,9 @@
           });
         }
       },
-      async getWrongPapersByLangId(langId){
-        let result = await reqWrongPapersByLangId(this.sno, langId);
-        if (result.statu == 0){
+      async getWrongPapersByCourseId(courseId){
+        let result = await getWrongPapersByCourseId(this.sno, courseId);
+        if (result.code === 200){
           this.wrongPapersList = result.data
         }
         else {
@@ -159,18 +155,19 @@
         }
       },
       clickTab(item, index){
-        if (item.langId == 0){
-          this.getWrongAllPapers();
+        console.log("+++")
+        if (item.id == 0){
+          this.getPaperWrongByStudentId();
         }
         else {
-          this.getWrongPapersByLangId(item.langId);
+          this.getWrongPapersByCourseId(item.id);
         }
       },
-      toScoreDetail(paperId){
-        this.$router.push('/profile/stuscore/detail/' + paperId)
+      toScoreDetail(examId){
+        this.$router.push('/profile/stuscore/detail/' + examId)
       },
-      toWrongDetail(paperId){
-        this.$router.push('/wrong/detail/' + paperId)
+      toWrongDetail(examId){
+        this.$router.push('/wrong/detail/' + examId)
       }
     },
     components:{

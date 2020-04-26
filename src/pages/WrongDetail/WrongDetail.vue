@@ -1,6 +1,6 @@
 <template>
   <div class="wrong">
-    <HeaderTop :title="paperInfo.paperName" class="paper_header">
+    <HeaderTop :title="paperInfo.title" class="paper_header">
       <a href="javascript:" slot="left" class="go_back" @click="toBack()">
         <i class="iconfont iconfanhui"></i>
       </a>
@@ -14,99 +14,73 @@
     <!--收藏题目和当前题数-->
     <div class="wrong_sub_title">
       <span class="wrong_statistics">
-        <i class="iconfont icontongji"></i>{{currentIndex + 1}}/{{queNumInfo.totalNum}}
       </span>
-    </div>
-
-    <!--考卷进度条提醒-->
-    <div>
-      <el-progress :text-inside="true" :stroke-width="18" :percentage="percentage"></el-progress>
     </div>
 
     <!--试卷问题及选项区域-->
     <div class="paper_container" v-show="showPaperContainer">
       <!--单选题列表-->
-      <section class="que" v-for="(item, index) in singleQueList" :key="'single'+ item.singleId"
+      <section class="que" v-for="(item, index) in singleQueList" :key="'single'+ item.id"
                v-show="index == currentIndex">
         <div class="content">
           <span class="que_type">
-            (单选题)<img :src="isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
+            (单选题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect('single',item.isCollect,index, item.id)"/>
           </span>
-          <span class="que_content">{{index + 1}}.&nbsp;{{item.singleContent}}<span class="que_score">[{{paperInfo.singleScore}}分]</span></span>
-
-          <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}<span class="que_score">{{item.score}}[分]</span></span>
 
           <div class="single_option" v-for="(option, optionIndex) in item.options"
-               :key="'single'+ item.singleId + optionIndex">
-            <mu-radio :value="option.value" v-model="item.singleAnswer" disabled :label="option.label" v-if="option.label"></mu-radio>
+               :key="'single'+ item.id + optionIndex">
+            <mu-radio :value="option.optionKey" v-model="singleAnswerList[index]" disabled
+                      :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue"></mu-radio>
           </div>
 
-          <div class="answer_row">正确答案：<span class="correct_answer">{{item.singleAnswer}}</span></div>
-          <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-          <div class="answer_row">是否正确：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.isCorrect == '1' ? '正确' : '错误'}}</span></div>
-          <div class="answer_row">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
+          <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption[0]}}</span></div>
+          <div class="answer_row">是否正确：<span :class="[item.rightOption[0] === singleAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.rightOption[0] === singleAnswerList[index] ? '正确' : '错误'}}</span></div>
+          <div class="answer_row">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
 
       <!--多选题列表-->
-      <section class="que" v-for="(item, index) in multipleQueList" :key="'multiple'+ item.multipleId"
-               v-show="(index + queNumInfo.singleNum) == currentIndex">
+      <section class="que" v-for="(item, index) in multipleQueList" :key="'multiple'+ item.id"
+               v-show="(index + singleQueList.length) == currentIndex">
         <div class="content">
           <span class="que_type">
-            (多选题)<img :src="isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
+            (多选题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
           </span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum}}.&nbsp;{{item.multipleContent}}<span class="que_score">[{{paperInfo.multipleScore}}分]</span></span>
-
-          <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+          <span class="que_content">{{index + 1 + singleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
 
           <div class="multiple_option" v-for="(option, optionIndex) in item.options"
-               :key="'multiple'+ item.multipleId + optionIndex">
-            <mu-checkbox :value="option.value" v-model="item.multipleAnswerArray" disabled :label="option.label" v-if="option.label"></mu-checkbox>
+               :key="'multiple'+ item.id + optionIndex">
+            <mu-checkbox :value="option.optionKey" v-model="multiAnswerList[index]" disabled :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue"></mu-checkbox>
           </div>
 
-          <div class="answer_row">正确答案：<span class="correct_answer">{{item.multipleAnswer}}</span></div>
-          <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-          <div class="answer_row">是否正确：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.isCorrect == '1' ? '正确' : '错误'}}</span></div>
+          <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption}}</span></div>
+          <!--<div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
+          <div class="answer_row">是否正确：<span :class="[item.rightOption === multiAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.rightOption === multiAnswerList[index] ? '正确' : '错误'}}</span></div>
           <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
 
       <!--判断题列表-->
-      <section class="que" v-for="(item, index) in judgeQueList" :key="'judge'+ item.judgeId"
-               v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum) == currentIndex">
+      <section class="que" v-for="(item, index) in judgeQueList" :key="'judge'+ item.id"
+               v-show="(index + singleQueList.length + multipleQueList.length) == currentIndex">
         <div class="content">
           <span class="que_type">
-            (判断题)<img :src="isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
+            (判断题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
           </span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum}}.&nbsp;{{item.judgeContent}}<span class="que_score">[{{paperInfo.judgeScore}}分]</span></span>
+          <span class="que_content">{{index + 1 + singleQueList.length + multipleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
 
-          <div class="judge_option" v-for="(option, optionIndex) in item.options"
-               :key="'judge'+ item.judgeId + optionIndex">
-            <mu-radio :value="option.value" v-model="item.judgeAnswer" disabled :label="option.label" v-if="option.label"></mu-radio>
+          <div class="judge_option" v-for="(option, optionIndex) in [{'value':'1','label':'T'},{'value':'0','label':'F'}]"
+               :key="'judge'+ item.id + optionIndex">
+            <mu-radio :value="option.value" v-model="judgeAnswerList[index].toString()" disabled :label="option.label" v-if="option.label"></mu-radio>
           </div>
-
-          <div class="answer_row">正确答案：<span class="correct_answer">{{item.judgeAnswer}}</span></div>
-          <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-          <div class="answer_row">是否正确：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.isCorrect == '1' ? '正确' : '错误'}}</span></div>
+          <div class="answer_row">正确答案：<span class="correct_answer">{{item.judgeAnswer === 1 ? 'T' : 'F'}}</span></div>
+          <!--<div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
+          <div class="answer_row">是否正确：<span :class="[item.judgeAnswer === judgeAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.judgeAnswer === judgeAnswerList[index] ? '正确' : '错误'}}</span></div>
           <div class="answer_row">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
 
-      <!--填空题列表-->
-      <section class="que" v-for="(item, index) in fillQueList" :key="'fill'+ item.fillId"
-               v-show="(index + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum) == currentIndex">
-        <div class="content">
-          <span class="que_type">
-            (填空题)<img :src="isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
-          </span>
-          <span class="que_content">{{index + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}.&nbsp;{{item.fillContent}}<span class="que_score">[{{paperInfo.fillScore}}分]</span></span>
-
-          <div class="answer_row">正确答案：<span class="correct_answer">{{item.fillAnswer}}</span></div>
-          <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-          <div class="answer_row">是否正确：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.isCorrect == '1' ? '正确' : '错误'}}</span></div>
-          <div class="answer_row">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
-        </div>
-      </section>
 
       <!--上一题和下一题按钮-->
       <div class="paper_button">
@@ -116,7 +90,6 @@
         </mt-button>
         <mt-button type="primary" @click.native="nextItem" :disabled="currentIndex == queNumInfo.totalNum-1">
           {{currentIndex == queNumInfo.totalNum-1 ? '到底了哥' : '下一题'}}
-        </mt-button>
         </mt-button>
       </div>
     </div>
@@ -131,28 +104,29 @@
       <div class="card_options">
         <!--答题卡单选题-->
         <div class="options">
-          <div class="options_title" style="padding-top: 15px" v-if="paperInfo.singleScore">
+          <div class="options_title" style="padding-top: 15px" v-if="singleQueList.length">
             单选题(每题{{paperInfo.singleScore}}分)
           </div>
 
           <div class="row">
             <div class="item" v-for="(singleItem, singleIndex) in singleQueList" :key="singleIndex">
               <div @click="toPaperQue(singleIndex + 1)"
-                   :class="[singleItem.isCorrect == '1' ? 'correct_flag' : 'error_flag']"><span>{{singleIndex + 1}}</span></div>
+                   :class="[singleItem.rightOption[0] === singleAnswerList[singleIndex] ? 'correct_flag' : 'error_flag']"><span>{{singleIndex + 1}}</span></div>
             </div>
           </div>
         </div>
 
         <!--答题卡多选题-->
         <div class="options">
-          <div class="options_title" v-if="paperInfo.multipleScore">
+          <div class="options_title" v-if="multipleQueList.length">
             多选题(每题{{paperInfo.multipleScore}}分)
           </div>
 
           <div class="row">
             <div class="item" v-for="(multipleItem, multipleIndex) in multipleQueList" :key="multipleIndex">
-              <div @click="toPaperQue(multipleIndex + 1 + queNumInfo.singleNum)"
-                   :class="[multipleItem.isCorrect == '1' ? 'correct_flag' : 'error_flag']"><span>{{multipleIndex + 1 + queNumInfo.singleNum}}</span>
+              <div @click="toPaperQue(multipleIndex + 1 + singleQueList.length)"
+                   :class="[multipleItem.rightOption === multiAnswerList[multipleIndex] ? 'correct_flag' : 'error_flag']">
+                <span>{{multipleIndex + 1 + singleQueList.length}}</span>
               </div>
             </div>
           </div>
@@ -160,30 +134,16 @@
 
         <!--答题卡判断题-->
         <div class="options">
-          <div class="options_title" v-if="paperInfo.judgeScore">
+          <div class="options_title" v-if="judgeQueList.length">
             判断题(每题{{paperInfo.judgeScore}}分)
           </div>
 
           <div class="row">
             <div class="item" v-for="(judgeItem, judgeIndex) in judgeQueList" :key="judgeIndex">
-              <div @click="toPaperQue(judgeIndex + 1 + queNumInfo.singleNum + queNumInfo.multipleNum)"
-                   :class="[judgeItem.isCorrect == '1' ? 'correct_flag' : 'error_flag']"><span>{{judgeIndex + 1 + queNumInfo.singleNum + queNumInfo.multipleNum}}</span>
+              <div @click="toPaperQue(judgeIndex + 1 + singleQueList.length + multipleQueList.length)"
+                   :class="[judgeItem.judgeAnswer === judgeAnswerList[judgeIndex] ? 'correct_flag' : 'error_flag']">
+                <span>{{judgeIndex + 1 + singleQueList.length + multipleQueList.length}}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!--答题卡填空题-->
-        <div class="options">
-          <div class="options_title" v-if="paperInfo.fillScore">
-            填空题(每题{{paperInfo.fillScore}}分)
-          </div>
-
-          <div class="row">
-            <div class="item" v-for="(fillItem, fillIndex) in fillQueList" :key="fillIndex">
-              <div @click="toPaperQue(fillIndex + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum)"
-                   :class="[fillItem.isCorrect == '1' ? 'correct_flag' : 'error_flag']">
-                <span>{{fillIndex + 1 + queNumInfo.singleNum + queNumInfo.multipleNum + queNumInfo.judgeNum}}</span></div>
             </div>
           </div>
         </div>
@@ -198,7 +158,7 @@
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import {Toast, MessageBox} from 'mint-ui'
-  import {reqPapersInfoByWrongPaperId, reqUpdatePaperAnswerIsCollect} from '../../api'
+  import {getPaperWrongDetailByExamId, updateStudentQuestion,getStudentQuestionCollect} from '../../api'
   import {mapState, mapActions} from 'vuex'
   export default {
     name: "",
@@ -206,8 +166,8 @@
       return {
         //学号
         sno: this.$store.state.userInfo.sno,
-        //路由传值paperId
-        paperId: this.$route.params.paperId,
+        //路由传值examId
+        examId: this.$route.params.examId,
         //试卷信息
         paperInfo: {},
         //试卷问题类型数量
@@ -218,18 +178,21 @@
         multipleQueList: [],
         //判断题数组
         judgeQueList: [],
-        //填空题数组
-        fillQueList: [],
         //是否显示paperContainer,默认进入页面为true
         showPaperContainer: true,
         //是否显示paperCard答题卡，默认进入页面为false，当点击答题卡区域为true
         showPaperCard: false,
         isCollect:'0',
-        percentage:0 //进度条值
+        percentage:0, //进度条值
+        singleAnswerList:[],
+        multiAnswerList:[],
+        judgeAnswerList:[],
+        studentQuestionCollectList:[]
       }
     },
     created(){
-      this.getPapersInfoByWrongPaperId();
+      this.getPaperWrongDetailByExamId()
+      this.getStudentQuestionCollect()
     },
     computed:{
       ...mapState([
@@ -243,87 +206,97 @@
         'cardQue',//点击答题卡序号
         'refreshCurrentIndex'
       ]),
-      async getPapersInfoByWrongPaperId(){
-        const {sno, paperId} = this;
-        let result = await reqPapersInfoByWrongPaperId({sno, paperId});
-        if (result.statu == 0) {
-          this.paperInfo = result.data.paperInfo;
-          this.queNumInfo = result.data.queNumInfo;
-          this.singleQueList = result.data.singleQueList;
-          this.multipleQueList = result.data.multipleQueList;
-          this.judgeQueList = result.data.judgeQueList;
-          this.fillQueList = result.data.fillQueList;
-          // this.isCollect = result.data.singleQueList[0].isCollect;
-          this.percentage = parseInt((this.currentIndex+1)/this.queNumInfo.totalNum*100);
+      async getStudentQuestionCollect(){
+        const result = await  getStudentQuestionCollect(this.sno)
+        this.studentQuestionCollectList = result.data
+      },
+      async getPaperWrongDetailByExamId(){
+        let result = await getPaperWrongDetailByExamId(this.examId);
+        if (result.code === 200) {
+          const paperId = result.data.paperId
+          const paperTitle = result.data.paperTitle
+          this.paperInfo = {"id":paperId,"title":paperTitle}
+          // this.queNumInfo = result.data.queNumInfo;
+          this.singleAnswerList = result.data.singleAnswer
+          this.multiAnswerList = result.data.multiAnswer
+          this.judgeAnswerList = result.data.judgeAnswer
+          this.singleQueList = result.data.singleChoiceList;
+          this.multipleQueList = result.data.multiChoiceList;
+          this.judgeQueList = result.data.judgeChoiceList;
         }
         else {
           Toast({
-            message: result.msg,
+            message: result.message,
             duration: 1500
           });
         }
       },
-      async updatePaperAnswerIsCollect(answerId, isCollect){
-        let result = await reqUpdatePaperAnswerIsCollect(answerId, isCollect);
-        if (result.statu == 0){
-          return true;
+      clickCollect(type,isCollect,index,questionId){
+        if(type === 'single'){
+          this.singleQueList[index].isCollect = this.singleQueList[index].isCollect == '1' ? '0' : '1'
         }
-        else {
-          return false;
+        else if(type === 'multi'){
+
         }
+        this.updateStudentQuestion(this.sno,questionId,isCollect == '1' ? '0' : '1')
       },
-      clickCollect(isCollect, index, answerId){
-        if (this.isCollect == '0') {
-          this.isCollect = '1';
-          if (this.currentIndex < this.queNumInfo.singleNum){
-            this.singleQueList[this.currentIndex].isCollect = '1';
-          }
-          else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
-            this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect = '1';
-          }
-          else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
-            this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect = '1';
-          }
-          else {
-            this.fillQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum - this.queNumInfo.judgeNum].isCollect = '1';
-          }
-          // this.singleQueList[index].isCollect = '1';
-          // this.$set(this.singleQueList, index, item);
-          // this.singleQueList.splice(index, 1, 1);
-          if (this.updatePaperAnswerIsCollect(answerId, '1')) {
-            Toast({
-              message:'收藏成功',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
+      async updateStudentQuestion(studentId,questionId,isCollect){
+        let result = await updateStudentQuestion(studentId,questionId,isCollect)
+        if(result.code === 200){
+                Toast({
+                  message:'收藏成功',
+                  duration: 1000,
+                  position:'bottom'
+                });
+        }else{
+                Toast({
+                  message:'收藏失败',
+                  duration: 1000,
+                  position:'bottom'
+                });
         }
-        else {
-          this.isCollect = '0';
-          if (this.currentIndex < this.queNumInfo.singleNum){
-            this.singleQueList[this.currentIndex].isCollect = '0';
-          }
-          else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
-            this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect = '0';
-          }
-          else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
-            this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect = '0';
-          }
-          else {
-            this.fillQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum - this.queNumInfo.judgeNum].isCollect = '0';
-          }
-          // this.singleQueList[index].isCollect = '0';
-          // this.$set(this.singleQueList, index, item);
-          // this.singleQueList.splice(index, 1, 0);
-          if (this.updatePaperAnswerIsCollect(answerId, '0')) {
-            Toast({
-              message:'已取消收藏',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
-        }
+        this.getStudentQuestionCollect()
       },
+      // clickCollect(isCollect, index, answerId){
+      //   if (this.isCollect == '0') {
+      //     this.isCollect = '1';
+      //     if (this.currentIndex < this.queNumInfo.singleNum){
+      //       this.singleQueList[this.currentIndex].isCollect = '1';
+      //     }
+      //     else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
+      //       this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect = '1';
+      //     }
+      //     else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
+      //       this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect = '1';
+      //     }
+      //     if (this.updatePaperAnswerIsCollect(answerId, '1')) {
+      //       Toast({
+      //         message:'收藏成功',
+      //         duration: 1000,
+      //         position:'bottom'
+      //       });
+      //     }
+      //   }
+      //   else {
+      //     this.isCollect = '0';
+      //     if (this.currentIndex < this.queNumInfo.singleNum){
+      //       this.singleQueList[this.currentIndex].isCollect = '0';
+      //     }
+      //     else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
+      //       this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect = '0';
+      //     }
+      //     else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
+      //       this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect = '0';
+      //     }
+      //     if (this.updatePaperAnswerIsCollect(answerId, '0')) {
+      //       Toast({
+      //         message:'已取消收藏',
+      //         duration: 1000,
+      //         position:'bottom'
+      //       });
+      //     }
+      //   }
+      // },
       //点击上一题
       preItem() {
         this.prevQue();

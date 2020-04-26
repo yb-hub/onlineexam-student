@@ -9,48 +9,17 @@
 
     <!--试卷标题-->
     <div class="paper_title">
-      <span>{{paperInfo.paperName}}</span>
-    </div>
-
-    <!--教师公告无缝跑马灯-->
-    <div class="notices_run">
-      <i class="iconfont iconxiazai41"></i>
-
-      <vue-seamless-scroll :data="examCalendar" :class-option="optionLeft" class="seamless-warp2">
-        <ul class="item">
-          <li>
-            最新公告消息:{{examCalendar[0].noticeContent}}
-          </li>
-        </ul>
-      </vue-seamless-scroll>
+      <span>{{paperScoreDetail.paper.title}}</span>
     </div>
 
     <!--成绩报告图表-->
     <div class="score_chart">
       <RingSchart :chartData="chartDataRingScore"/>
       <BarSchart :chartData="chartDataBarCorrect"/>
-      <LineSchart :chartData="chartDataLineRanking"/>
       <div class="score_text">
         <p>
-          <span>你的分数：<span>{{myScore}}</span>分</span>
-          <span>当前排名：第<span>{{ranking}}</span>名</span>
+          <span>你的分数：<span>{{paperScoreDetail.totalScore}}</span>分</span>
         </p>
-        <p>
-          <span>最高分：<span>{{maxScore}}</span>分</span>
-          <span>最低分：<span>{{minScore}}</span>分</span>
-        </p>
-        <p>
-          <span>平均分：<span>{{averageScore}}</span>分</span>
-          <span>参加总人数：<span>{{chartDataLineRanking.length}}</span>人</span>
-        </p>
-        <div>
-          <el-progress type="circle" :percentage="percentage" status="text"><span>{{myScore}}</span>分</el-progress>
-        </div>
-        <div class="percentage_title">你的分数与试卷总分比例</div>
-      </div>
-      <PieSchart :chartData="chartDataPieTime"/>
-      <div class="bottom_tips" style="margin-top: 35px">
-        <span>我是有底线的</span>
       </div>
     </div>
 
@@ -63,10 +32,8 @@
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
   import RingSchart from '../../components/Schart/RingSchart.vue'
   import BarSchart from '../../components/Schart/BarSchart.vue'
-  import LineSchart from '../../components/Schart/LineSchart.vue'
-  import PieSchart from '../../components/Schart/PieSchart.vue'
   import BackToTop from '../../components/BackToTop'
-  import {reqScoreReport} from '../../api'
+  import {getPaperScoreDetailByExamResultId} from '../../api'
   import {Toast, Indicator} from 'mint-ui'
   import { mapState } from 'vuex'
   export default {
@@ -83,28 +50,10 @@
           background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
         },
         sno:this.$store.state.userInfo.sno,
-        paperId:this.$route.params.paperId,
-        chartDataRingScore: [
-          {name: '单选题', value: 20},
-          {name: '多选题', value: 10},
-          {name: '判断题', value: 4},
-          {name: '填空题', value: 6},
-        ],
-        chartDataBarCorrect:[
-          {name: '单选题20道', value: 5},
-          {name: '多选题5道', value: 2},
-          {name: '判断题5道', value: 1},
-          {name: '填空题5道', value: 3},
-        ],
-        chartDataLineRanking:[],
-        chartDataPieTime:[],
-        paperInfo:{},
-        myScore:0,
-        maxScore:0,
-        minScore:0,
-        ranking:0,
-        percentage:0,
-        averageScore:0
+        examResultId:this.$route.params.id,
+        paperScoreDetail:{},
+        chartDataRingScore: [],
+        chartDataBarCorrect:[],
       }
     },
     created(){
@@ -112,7 +61,7 @@
         text: '报告生成中...',
         spinnerType: 'snake'
       });
-      this.getScoreReport();
+      this.getPaperScoreDetailByExamResultId();
     },
     computed: {
       optionLeft () {
@@ -126,29 +75,17 @@
     },
     methods: {
       // 获取成绩报告数据
-      async getScoreReport(){
-        const {sno, paperId} = this;
-        let result = await reqScoreReport({sno, paperId});
-        if (result.statu == 0){
-          this.chartDataRingScore = result.data.chartDataRingScore;
-          this.chartDataBarCorrect = result.data.chartDataBarCorrect;
-          this.chartDataLineRanking = result.data.chartDataLineRanking;
-          this.chartDataPieTime = result.data.chartDataPieTime;
-          this.paperInfo = result.data.paperInfo;
-          //全部人分数
-          var score = 0;
-          this.chartDataLineRanking.forEach((item, index) => {
-            score += item.value;
-            if (item.name == '我'){
-              this.myScore = item.value;
-              this.ranking = this.chartDataLineRanking.length - index;
-            }
-          });
-          this.maxScore = this.chartDataLineRanking[this.chartDataLineRanking.length - 1].value;
-          this.minScore = this.chartDataLineRanking[0].value;
-          this.percentage = this.myScore/result.data.totalScore*100;
-          // this.averageScore = (score/this.chartDataLineRanking.length).toFixed(2);
-          this.averageScore = Math.round(score/this.chartDataLineRanking.length);
+      async getPaperScoreDetailByExamResultId(){
+        console.log(this.examResultId)
+        let result = await getPaperScoreDetailByExamResultId(this.examResultId);
+        if (result.code === 200){
+          this.chartDataRingScore.push({"name":"单选题","value":result.data.paper.singleScore*result.data.rightSingle});
+          this.chartDataRingScore.push({"name":"多选题","value":result.data.paper.multiScore*result.data.rightMulti});
+          this.chartDataRingScore.push({"name":"判断题","value":result.data.paper.judgeScore*result.data.rightJudge});
+          this.chartDataBarCorrect.push({"name":"单选题","value":result.data.rightSingle})
+          this.chartDataBarCorrect.push({"name":"多选题","value":result.data.rightMulti})
+          this.chartDataBarCorrect.push({"name":"判断题","value":result.data.rightJudge})
+          this.paperScoreDetail = result.data
           setTimeout(() => {
             Indicator.close();
           }, 500)
@@ -156,7 +93,7 @@
         else {
           Indicator.close();
           Toast({
-            message:result.msg,
+            message:result.message,
             duration: 1500
           });
         }
@@ -166,8 +103,6 @@
       HeaderTop,
       RingSchart,
       BarSchart,
-      LineSchart,
-      PieSchart,
       BackToTop
     }
   }

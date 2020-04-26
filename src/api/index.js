@@ -158,3 +158,30 @@ export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/'
 
 //将考生试卷提交到后台
 export const insertPaperResult = (submittedPaper) => ajax(BASE_URL2 + '/paper/result', submittedPaper,'POST')
+
+//获取考生的成绩单列表
+export const getPaperScoreByStuId = (studentId) => ajax(BASE_URL2 + '/profile/stuScore/'+studentId)
+
+//获取考生的成绩单详情
+export const getPaperScoreDetailByExamResultId = (examResultId) => ajax(BASE_URL2 + '/profile/stuScore/detail/' + examResultId)
+
+//获取考生的考试记录（错题）
+export const getPaperWrongByStudentId = (studentId) => ajax(BASE_URL2 + '/paper/wrong/'+studentId)
+
+//获取考生的考试记录（通过课程id筛选）
+export const getWrongPapersByCourseId = (studentId,courseId) => ajax(BASE_URL2 + '/paper/wrong/'+studentId,{"courseId":courseId})
+
+//获取考生的考试记录的课程
+export const getWrongCourse = (studentId) => ajax(BASE_URL2 + '/courses/wrong/' + studentId)
+
+//获取考生的考试记录的详情
+export const getPaperWrongDetailByExamId = (examId)=> ajax(BASE_URL2 + '/paper/wrong/detail/'+examId)
+
+//收藏或取消收藏试题
+export const updateStudentQuestion = (studentId,questionId,isCollect) => ajax(BASE_URL2 + '/question/collect',{"studentId":studentId,"questionId":questionId,"isCollect":isCollect},'PUT')
+
+//获取考生的所有收藏试题
+export const getStudentQuestionCollect = (studentId) => ajax(BASE_URL2 + '/question/collect/'+studentId)
+
+//学生登录
+export const studentLogin = (studentId,password) => ajax(BASE_URL2 + '/login',{"studentId":studentId,"password":password},"POST")

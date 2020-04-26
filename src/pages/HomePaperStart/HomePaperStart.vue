@@ -230,28 +230,6 @@
         'firstCurrentTime'
       ]),
       ...mapGetters(['completeNumber'])
-      /*      //答题卡已完成题数
-            completeNumber(){
-              var number = 0;
-              this.singleAnswers.forEach(function (v) {
-                if (v)
-                  number++
-              });
-              this.multipleAnswers.forEach(function (v) {
-                if (v.length)
-                  number++
-              });
-              this.judgeAnswers.forEach(function (v) {
-                if (v)
-                  number++
-              });
-              this.fillAnswers.forEach(function (v) {
-                if (v)
-                  number++
-              });
-              console.log(number)
-              return number
-            }*/
     },
     created () {
       Indicator.open({
@@ -399,43 +377,7 @@
       //用户手动点击提交试卷按钮，弹出确认框
       clickSubmit () {
         MessageBox.confirm('确定要提交试卷吗?').then(action => {
-          let result = this.handleSubmit()
-          if (result) {
-            //等待成绩计算完毕并插入数据库表
-            Indicator.open({
-              text: '自动计算成绩中...',
-              spinnerType: 'double-bounce'
-            })
-            setTimeout(() => {
-              Indicator.close()
-              Toast({
-                message: '提交成功，请查看成绩',
-                duration: 1500
-              })
-              //清除sessionStorage数据
-              sessionStorage.removeItem('currentIndex')
-              sessionStorage.removeItem('singleAnswers')
-              sessionStorage.removeItem('multipleAnswers')
-              sessionStorage.removeItem('judgeAnswers')
-              sessionStorage.removeItem('judgeAnswers')
-              sessionStorage.removeItem('firstCurrentTime')
-              sessionStorage.removeItem('sno' + this.sno + 'paperId' + this.paperId, result.msg)
-              //清除vuex数据
-              this.refreshCurrentIndex(0)
-              this.refreshSingleAnswers([])
-              this.refreshMultipleAnswers([])
-              this.refreshJudgeAnswers([])
-              this.refreshFirstCurrentTime(0)
-              this.$router.replace('/profile/stuscore')
-            }, 4000)
-          }
-          else {
-            Toast({
-              message: '交卷失败，数据库错误，请重新开始考试',
-              duration: 1500
-            })
-            this.$router.replace('/home/paper/detail/' + this.paperId)
-          }
+          this.handleSubmit()
         }, () => {
           //点击取消按钮操作
         })
@@ -453,13 +395,42 @@
           'judgeChoiceAnswer': this.judgeAnswers,
           'usedTime': this.timeUsed
         }
-        console.log(submittedPaper)
         let result = await insertPaperResult(submittedPaper)
         if (result.code === 200) {
-          return true
+          //等待成绩计算完毕并插入数据库表
+          Indicator.open({
+            text: '自动计算成绩中...',
+            spinnerType: 'double-bounce'
+          })
+          setTimeout(() => {
+            Indicator.close()
+            Toast({
+              message: '提交成功，请查看成绩',
+              duration: 1500
+            })
+            //清除sessionStorage数据
+            sessionStorage.removeItem('currentIndex')
+            sessionStorage.removeItem('singleAnswers')
+            sessionStorage.removeItem('multipleAnswers')
+            sessionStorage.removeItem('judgeAnswers')
+            sessionStorage.removeItem('judgeAnswers')
+            sessionStorage.removeItem('firstCurrentTime')
+            sessionStorage.removeItem('sno' + this.sno + 'paperId' + this.paperId, result.message)
+            //清除vuex数据
+            this.refreshCurrentIndex(0)
+            this.refreshSingleAnswers([])
+            this.refreshMultipleAnswers([])
+            this.refreshJudgeAnswers([])
+            this.refreshFirstCurrentTime(0)
+            this.$router.replace('/profile/stuscore')
+          }, 4000)
         }
         else {
-          return false
+          Toast({
+            message: '交卷失败，数据库错误，请重新开始考试',
+            duration: 1500
+          })
+          this.$router.replace('/home/paper/detail/' + this.paperId)
         }
       },
       //点击上一题
