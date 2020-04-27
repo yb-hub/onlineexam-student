@@ -1,7 +1,7 @@
 <template>
   <div class="wrong">
     <HeaderTop title="错题查看"></HeaderTop>
-    <section class="wrong_no_login" v-if="!userInfo.sno">
+    <section class="wrong_no_login" v-if="!userInfo.studentId">
       <i class="iconfont iconc-kongzhuangtai"></i>
       <h3>登录后查看错题</h3>
       <mt-button @click="$router.push('/login')">立即登录</mt-button>
@@ -11,7 +11,7 @@
       v-model="selectedId"
       :items="items"
       :options="options"
-      v-if="userInfo.sno"
+      v-if="userInfo.studentId"
       @change="clickTab">
     </ly-tab>
 
@@ -63,7 +63,7 @@
 
     <back-to-top :custom-style="myBackToTopStyle" :visibility-height="300" :back-position="0" transition-name="fade" />
 
-    <div class="no_paper_list" v-if="userInfo.sno && isWrongPapersList">
+    <div class="no_paper_list" v-if="userInfo.studentId && isWrongPapersList">
       <img src="../../common/imgs/nopaperwrong.png" alt="">
       <h3>暂无错题记录</h3>
     </div>
@@ -91,7 +91,7 @@
           'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
           background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
         },
-        sno:this.$store.state.userInfo.sno,
+        sno:this.$store.state.userInfo.studentId,
         selectedId: 0,
         items:[],
         options: {
@@ -137,7 +137,7 @@
         }
         else {
           Toast({
-            message:result.msg,
+            message:result.message,
             duration: 1500
           });
         }

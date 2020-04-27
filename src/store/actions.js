@@ -11,7 +11,7 @@ import {
   reqUnreadMsgCount,
   reqFeedbackInfo,
   reqExamCalendar,
-  reqLanguagesInfo
+  reqLanguagesInfo, logout
 } from '../api'
 import {
   GET_COURSE_LIST,
@@ -80,8 +80,8 @@ export default {
   },
   // 异步登出
   async logout ({commit}) {
-    const result = await reqLogout()
-    if (result.statu === 0) {
+    const result = await logout()
+    if (result.code === 200) {
       commit(RESET_USER_INFO)
     }
   },

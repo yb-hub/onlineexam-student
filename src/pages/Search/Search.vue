@@ -6,7 +6,7 @@
       <input type="submit" class="search_submit" value="搜索"
              :class="isSelect?'opacity':''" @touchstart="toggleSelect" @touchend="toggleSelect">
     </form>
-    <section class="search_no_login" v-if="!userInfo.sno">
+    <section class="search_no_login" v-if="!userInfo.studentId">
       <i class="iconfont iconsousuo1"></i>
       <h3>登录后即可搜索</h3>
       <mt-button @click="$router.push('/login')">立即登录</mt-button>
@@ -41,7 +41,7 @@
       </ul>
     </section>
 
-    <section class="search__login" v-if="userInfo.sno">
+    <section class="search__login" v-if="userInfo.studentId">
       <img src="../../common/imgs/nopapersearch.png" alt="">
       <h3>{{tips}}</h3>
     </section>
@@ -67,7 +67,7 @@
     },
     methods: {
       search(){
-        if (!this.$store.state.userInfo.sno){
+        if (!this.$store.state.userInfo.studentId){
           Toast({
             message:'请先登录系统',
             duration: 1000

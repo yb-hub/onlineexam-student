@@ -1,12 +1,12 @@
 <template>
   <div class="home">
     <HeaderTop title="在线考试系统">
-      <router-link class="header_login" slot="right" :to="userInfo.sno ? '/profile/info' : '/login'">
-        <span class="header_login_text" v-if="!userInfo.sno">
+      <router-link class="header_login" slot="right" :to="userInfo.studentId ? '/profile/info' : '/login'">
+        <span class="header_login_text" v-if="!userInfo.studentId">
           登录|注册
         </span>
         <span class="header_login_text" v-else>
-          <img :src="userInfo.stuImgSrc ? userInfo.stuImgSrc : require('../../common/imgs/profile.jpg')" class="profile_img">
+          <img src="../../common/imgs/yingmu.jpg" class="profile_img">
         </span>
       </router-link>
     </HeaderTop>
@@ -28,10 +28,10 @@
         <i class="iconfont iconrili"></i>
         考试日历
       </div>
-      <div class="calendar-right" v-if="userInfo.sno">
-        <i class="iconfont iconxiazai41"></i>
-        最新考试信息：{{examCalendar[0].teaName}}{{examCalendar[0].noticeCreateTime | date-format('M')}}月{{examCalendar[0].noticeCreateTime | date-format('D')}}号发布
-      </div>
+<!--      <div class="calendar-right" v-if="false">-->
+<!--        <i class="iconfont iconxiazai41"></i>-->
+<!--        最新考试信息：{{examCalendar[0].teaName}}{{examCalendar[0].noticeCreateTime | date-format('M')}}月{{examCalendar[0].noticeCreateTime | date-format('D')}}号发布-->
+<!--      </div>-->
     </div>
   </div>
 </template>
@@ -73,7 +73,7 @@
         this.curSelect = null;
       },
       toCalendar(){
-        if (!this.$store.state.userInfo.sno){
+        if (!this.$store.state.userInfo.studentId){
           Toast({
             message:'请先登录系统',
             duration: 1000
@@ -84,7 +84,7 @@
         }
       },
       toPaper(id){
-        if (!this.$store.state.userInfo.sno){
+        if (!this.$store.state.userInfo.studentId){
           Toast({
             message:'请先登录系统',
             duration: 1000

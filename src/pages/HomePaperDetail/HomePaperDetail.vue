@@ -76,15 +76,6 @@
           </span>
           <Star :score="paperDetail.difficultyDegree" :size="24" />
         </div>
-
-        <!--<div class="paper_participate">-->
-          <!--<span style="color: #3caafd">-->
-            <!--<i class="iconfont iconcanjia"></i>-->
-            <!--参加人数：-->
-          <!--</span>-->
-          <!--{{paperDetail.participateNum}}人-->
-        <!--</div>-->
-
         <div class="paper_que_type">
           <span style="color: #3caafd">
             <i class="iconfont icontixing"></i>
@@ -123,7 +114,7 @@
     name: "",
     data() {
       return {
-        sno:this.$store.state.userInfo.sno,
+        sno:this.$store.state.userInfo.studentId,
         paperId:this.$route.params.paperId,
         paperDetail:{},
         queNumInfo:{},
@@ -161,6 +152,7 @@
           this.paperDetail =  result.data
         }
       },
+
       async getCurrentPaperStatus(){
         const {sno, paperId} = this;
         let result = await reqCurrentPaperStatus({sno, paperId});

@@ -159,7 +159,6 @@ export const getPaperDetailByPaperId = (id) => ajax(BASE_URL2 + '/paper/detail/'
 //将考生试卷提交到后台
 export const insertPaperResult = (submittedPaper) => ajax(BASE_URL2 + '/paper/result', submittedPaper,'POST')
 
-<<<<<<< HEAD
 //获取考生的成绩单列表
 export const getPaperScoreByStuId = (studentId) => ajax(BASE_URL2 + '/profile/stuScore/'+studentId)
 
@@ -193,3 +192,14 @@ export const updatePassword = (studentId,password,newPassword,newPasswordConfirm
 //修改考生信息
 export const updateStudent = (studentId,name,sex,email,phoneNumber) => ajax(BASE_URL2 + '/'+studentId,{'name':name,'sex':sex,'email':email,'phoneNumber':phoneNumber},'PUT')
 
+//考生登出
+export const logout = () => ajax(BASE_URL2+'/logout',{},'POST')
+
+//根据考生学号获取考生收藏题目
+export const getAllCollectionsByStudentId = (studentId) => ajax(BASE_URL2 + '/question/collect/'+studentId)
+
+//根据考生学号和题目类型获取考生收藏题目
+export const getCollectionsByQuestionType = (studentId,questionType) => ajax(BASE_URL2 + '/question/collect/type/'+studentId,{'questionType':questionType})
+
+//根据题目id获取题目
+export const getQuestionById = (questionId) => ajax(BASE_URL2 + '/question/'+questionId)

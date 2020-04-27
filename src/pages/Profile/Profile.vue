@@ -19,7 +19,7 @@
         </div>
 
         <div class="user-info">
-          <p class="user-info-top" v-if="userInfo.name">{{userInfo.name || '登录/注册'}}</p>
+          <p class="user-info-top">{{userInfo.name || '登录/注册'}}</p>
           <p>
             <span class="user-icon">
               <i class="iconfont iconshouji"></i>

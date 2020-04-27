@@ -1,5 +1,5 @@
 <template>
-  <section class="wrong_collection">
+  <section class="wrong_collection" v-loading="loading">
     <!--利用$router.back()返回上一级路由 -->
     <HeaderTop title="收藏题目">
       <a href="javascript:" slot="left" class="go_back" @click="$router.goBack()">
@@ -7,42 +7,29 @@
       </a>
     </HeaderTop>
 
-    <!--教师公告无缝跑马灯-->
-    <div class="notices_run">
-      <i class="iconfont iconxiazai41"></i>
-
-      <vue-seamless-scroll :data="noticesList" :class-option="optionLeft" class="seamless-warp2">
-        <ul class="item">
-          <li v-for="item in noticesList">
-            {{item.noticeContent}}
-          </li>
-        </ul>
-      </vue-seamless-scroll>
-    </div>
-
     <!--ly-tab实现触摸滑动具有回弹效果的分类导航-->
     <ly-tab
       v-model="selectedId"
       :items="items"
       :options="options"
-      v-if="userInfo.sno"
+      v-if="userInfo.studentId"
       @change="clickTab">
     </ly-tab>
 
     <!--显示收藏题目列表-->
-    <div class="collections_list">
+    <div class="collections_list" v-if="collectionsList.length != 0">
       <mt-loadmore :top-method="loadTop" ref="loadmore">
-        <div v-for="(item, index) in collectionsList" :key="index" @click="toCollectionDetail(item.answerId, item.queType)">
-          <ProfileItem :title="item.content" icon="iconshoucangxuanzhong"></ProfileItem>
+        <div v-for="(item, index) in collectionsList" :key="index" @click="toCollectionDetail(item.questionId,item.questionType)">
+          <ProfileItem :title="item.questionTitle" icon="iconshoucangxuanzhong"></ProfileItem>
         </div>
-        <div v-if="!isCollectionsList" class="bottom_tips" style="margin-top: 25px">
-          <span>我是有底线的</span>
-        </div>
+<!--        <div class="bottom_tips" style="margin-top: 25px">-->
+<!--          <span>我是有底线的</span>-->
+<!--        </div>-->
       </mt-loadmore>
     </div>
 
     <!--无收藏题目列表显示的内容-->
-    <div class="no_collections_list" v-if="userInfo.sno && isCollectionsList">
+    <div class="no_collections_list" v-if="userInfo.studentId && collectionsList.length == 0">
       <img src="../../common/imgs/nopaperwrong.png" alt="">
       <h3>暂无收藏记录</h3>
     </div>
@@ -58,7 +45,7 @@
   import BackToTop from '../../components/BackToTop'
   import {Toast} from 'mint-ui'
   import {mapState} from 'vuex'
-  import {reqAllCollections, reqCollectionsById} from '../../api'
+  import {getAllCollectionsByStudentId, getCollectionsByQuestionType} from '../../api'
   export default {
     name: "",
     data() {
@@ -72,15 +59,13 @@
           'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
           background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
         },
-        sno:this.$store.state.userInfo.sno,
-        noticesList:this.$store.state.examCalendar,
+        sno:this.$store.state.userInfo.studentId,
         selectedId: 0,
         items:[
           {queType:0, label:'全部'},
           {queType:1, label:'单选题'},
           {queType:2, label:'多选题'},
-          {queType:3, label:'选择题'},
-          {queType:4, label:'填空题'}
+          {queType:3, label:'判断题'},
         ],
         options: {
           activeColor: '#4ab8a1',
@@ -88,7 +73,6 @@
           // labelKey: 'langName'
         },
         collectionsList:[],
-        isCollectionsList:false
       }
     },
     created(){
@@ -116,29 +100,35 @@
         }, 1000)
       },
       async getAllCollections(){
-        const {sno} = this;
-        let result = await reqAllCollections({sno});
-        if (result.statu == 0){
+        this.loading = true;
+        let result = await getAllCollectionsByStudentId(this.sno);
+        if (result.code === 200){
           this.collectionsList = result.data;
+          this.loading = false;
         }
         else {
           Toast({
-            message:result.msg,
+            message:result.message,
             duration: 1500
           });
         }
       },
       async getCollectionsById(queType){
-        let result = await reqCollectionsById(this.sno, queType);
-        if (result.statu == 0){
-          this.collectionsList = result.data;
+        if(queType != 0){
+          let result = await getCollectionsByQuestionType(this.sno, queType);
+          if (result.code === 200){
+            this.collectionsList = result.data;
+          }
+          else {
+            Toast({
+              message:result.message,
+              duration: 1500
+            });
+          }
+        }else{
+          this.getAllCollections();
         }
-        else {
-          Toast({
-            message:result.msg,
-            duration: 1500
-          });
-        }
+
       },
       clickTab(item, index){
         if (item.queType == 0){
@@ -148,18 +138,15 @@
           this.getCollectionsById(item.queType);
         }
       },
-      toCollectionDetail(answerId, queType){
+      toCollectionDetail(questionId, queType){
         if (queType == 1){
-          this.$router.push('/profile/collection/single/' + answerId)
+          this.$router.push('/profile/collection/single/' + questionId)
         }
         else if (queType == 2){
-          this.$router.push('/profile/collection/multiple/' + answerId)
+          this.$router.push('/profile/collection/multiple/' + questionId)
         }
         else if (queType == 3){
-          this.$router.push('/profile/collection/judge/' + answerId)
-        }
-        else {
-          this.$router.push('/profile/collection/fill/' + answerId)
+          this.$router.push('/profile/collection/judge/' + questionId)
         }
       }
     },

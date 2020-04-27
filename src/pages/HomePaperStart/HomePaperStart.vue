@@ -184,7 +184,7 @@
       return {
         paperDetail: {},
         //学号
-        sno: this.$store.state.userInfo.sno,
+        sno: this.$store.state.userInfo.studentId,
         //当前日期
         currentDate: new Date(),
         //路由传值paperId

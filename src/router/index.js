@@ -19,7 +19,6 @@ import ProfileWrongCollection from '@/pages/ProfileWrongCollection/ProfileWrongC
 import SingleCollection from '@/pages/ProfileCollectionDetail/SingleCollection.vue'
 import MultipleCollection from '@/pages/ProfileCollectionDetail/MultipleCollection.vue'
 import JudgeCollection from '@/pages/ProfileCollectionDetail/JudgeCollection.vue'
-import FillCollection from '@/pages/ProfileCollectionDetail/FillCollection.vue'
 import ProfileScoreDetail from '@/pages/ProfileScoreDetail/ProfileScoreDetail.vue'
 import ProfilePswChange from '@/pages/ProfilePswChange/ProfilePswChange.vue'
 import ProfileInfoChange from '@/pages/ProfileInfoChange/ProfileInfoChange.vue'
@@ -130,20 +129,16 @@ export default new VueRouter({
       component: ProfileWrongCollection
     },
     {
-      path: '/profile/collection/single/:answerId',
+      path: '/profile/collection/single/:questionId',
       component: SingleCollection
     },
     {
-      path: '/profile/collection/multiple/:answerId',
+      path: '/profile/collection/multiple/:questionId',
       component: MultipleCollection
     },
     {
-      path: '/profile/collection/judge/:answerId',
+      path: '/profile/collection/judge/:questionId',
       component: JudgeCollection
-    },
-    {
-      path: '/profile/collection/fill/:answerId',
-      component: FillCollection
     },
     {
       path:'/profile/stuscore/detail/:id',

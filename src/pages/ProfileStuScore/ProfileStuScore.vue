@@ -82,7 +82,7 @@
           'line-height': '45px', // 请保持与高度一致以垂直居中 Please keep consistent with height to center vertically
           background: '#e7eaf1'// 按钮的背景颜色 The background color of the button
         },
-        sno:this.$store.state.userInfo.sno,
+        sno:this.$store.state.userInfo.studentId,
         noScoreList:false,
         scoreList:[]
       }

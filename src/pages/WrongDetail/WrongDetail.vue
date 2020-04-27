@@ -165,7 +165,7 @@
     data() {
       return {
         //学号
-        sno: this.$store.state.userInfo.sno,
+        sno: this.$store.state.userInfo.studentId,
         //路由传值examId
         examId: this.$route.params.examId,
         //试卷信息

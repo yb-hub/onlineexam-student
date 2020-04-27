@@ -4,9 +4,22 @@
       <!--在组件中使用v-for循环一定要使用key-->
       <!--将来，谁使用此轮播图组件谁为我们传递lunbotuList-->
       <!--lunbotuList是父组件向子组件传值来设置-->
-      <mt-swipe-item v-for="item in lunbotuList" :key="item.imgId">
+<!--      <mt-swipe-item v-for="item in lunbotuList" :key="item.imgId">-->
+<!--        <viewer>-->
+<!--&lt;!&ndash;          <img :src="item.imgSrc" alt="" :class="{'full':isfull}">&ndash;&gt;-->
+<!--                    <img :src="require('../../common/imgs/admin.png')" alt="" :class="{'full':isfull}">-->
+<!--        </viewer>-->
+<!--      </mt-swipe-item>-->
+<!--      <mt-swipe-item v-for="item in [1,1,2]">-->
+<!--        <viewer>-->
+<!--          &lt;!&ndash;          <img :src="item.imgSrc" alt="" :class="{'full':isfull}">&ndash;&gt;-->
+<!--          <img :src="require('../../common/imgs/admin.png')" alt="" :class="{'full':isfull}">-->
+<!--        </viewer>-->
+<!--      </mt-swipe-item>-->
+      <mt-swipe-item v-for="item in [1,1,1]">
         <viewer>
-          <img :src="item.imgSrc" alt="" :class="{'full':isfull}">
+          <!--          <img :src="item.imgSrc" alt="" :class="{'full':isfull}">-->
+          <img src="http://www.lovecoding.online:8999/images/eeca80f86ce542b792cce0c5224d7776.png" alt="" :class="{'full':isfull}">
         </viewer>
       </mt-swipe-item>
     </mt-swipe>

@@ -11,18 +11,19 @@
             <span class="que_type">
               (单选题)<img :src="item.isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect"/>
             </span>
-        <span class="que_content">{{item.singleContent}}</span>
+        <span class="que_content">{{item.title}}</span>
 
         <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
 
         <div class="single_option" v-for="(option, optionIndex) in item.options"
-             :key="'single'+ item.singleId + optionIndex">
-          <mu-radio :value="option.value" v-model="item.singleAnswer" disabled :label="option.label" v-if="option.label"></mu-radio>
+             :key="'single'+ item.id + optionIndex">
+          <mu-radio :value="option.optionKey" v-model="item.rightOption[0]"
+                    :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue"></mu-radio>
         </div>
 
-        <div class="answer_row">正确答案：<span class="correct_answer">{{item.singleAnswer}}</span></div>
-        <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-        <div class="answer_row">答案解析：<span class="correct_answer">{{item.answerExplain || '暂无解析呀老哥，给个解析呗'}}</span></div>
+        <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption[0]}}</span></div>
+<!--        <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
+        <div class="answer_row">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
       </div>
     </div>
   </section>
@@ -30,13 +31,13 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-  import {reqSingleByAnswerId, reqUpdatePaperAnswerIsCollect} from '../../api'
+  import {getQuestionById, reqUpdatePaperAnswerIsCollect} from '../../api'
   import {Toast} from 'mint-ui'
   export default {
     name: "",
     data() {
       return {
-        answerId:this.$route.params.answerId,
+        questionId:this.$route.params.questionId,
         item:{}
       }
     },
@@ -45,14 +46,13 @@
     },
     methods: {
       async getSingleByAnswerId(){
-        const {answerId} = this;
-        let result = await reqSingleByAnswerId({answerId});
-        if (result.statu == 0){
+        let result = await getQuestionById(this.questionId);
+        if (result.code  === 200){
           this.item = result.data;
         }
         else {
           Toast({
-            message:result.msg,
+            message:result.message,
             duration: 1500
           });
         }

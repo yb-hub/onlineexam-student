@@ -26,47 +26,10 @@
     <!--实现登录功能-->
     <!--<transition name="el-fade-in">-->
     <div class="login-wrap" v-show="showLogin">
-<<<<<<< HEAD
-        <mt-field label="学号" placeholder="请输入8位数字学号" v-model="sno" :state="snoState" @blur.native.capture="checkSno"/>
-        <mt-field label="密码" placeholder="请输入密码" type="password" v-model="stuPsw" :state="pswState" @blur.native.capture="checkPsw" @keyup.enter.native="checkLogin"/>
-        <mt-button type="primary" size="large" @click.native="checkLogin">登录</mt-button>
-
-        <div class="toggle-login">
-          <span @click="toRegister">没有账号？马上注册</span>
-          <span @click="toFindPsw">忘记密码？</span>
-        </div>
-      </div>
-    <!--</transition>-->
-
-    <!--实现注册功能-->
-    <!--<transition name="el-fade-in">-->
-    <div class="register-wrap" v-show="showRegister">
-      <!--<p v-show="showTishi">{{tips}}</p>-->
-      <mt-field label="学号" placeholder="请输入8位数字学号" v-model="newSno" :state="newSnoState"
-                @blur.native.capture="checkNewSno"/>
-      <mt-field label="密码" placeholder="请输入至少6位数字密码" type="password" v-model="newPsw" :state="newPswState"
-                @blur.native.capture="checkNewPsw"/>
-      <mt-field label="确认密码" placeholder="请再次输入密码" type="password" v-model="newPswConfirm"
-                :state="newPswConfirmState" @blur.native.capture="checkNewPswConfirm"/>
-      <mt-field label="姓名" placeholder="请输入姓名" v-model="newName" :state="newNameState"
-                @blur.native.capture="checkNewName"/>
-
-      <mt-field label="邮箱" placeholder="请输入邮箱" v-model="newEmail" :state="newEmailState"
-                @blur.native.capture="checkNewEmail"/>
-      <mt-field label="手机号" placeholder="请输入手机号" type="tel" v-model="newPhone"
-                :state="newPhoneState" @blur.native.capture="checkNewPhone"/>
-      <mt-field label="安全码" placeholder="用于密码找回至少6位数字" type="password" v-model="newSecurityCode"
-                :state="newSecurityCodeState" @blur.native.capture="checknewSecurityCode"/>
-      <mt-field label="确认安全码" placeholder="请再次输入安全码" type="password" v-model="newSecurityCodeConfirm"
-                :state="newSecurityCodeConfirmState" @blur.native.capture="checknewSecurityCodeConfirm"
-                @keyup.enter.native="stuRegister"/>
-      <mt-button type="primary" size="large" @click.native="stuRegister">注册</mt-button>
-=======
       <mt-field label="学号" placeholder="请输入8位数字学号" v-model="sno" :state="snoState" @blur.native.capture="checkSno"/>
       <mt-field label="密码" placeholder="请输入密码" type="password" v-model="stuPsw" :state="pswState"
                 @blur.native.capture="checkPsw" @keyup.enter.native="checkLogin"/>
       <mt-button type="primary" size="large" @click.native="checkLogin">登录</mt-button>
->>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
 
       <div class="toggle-login">
         <span @click="toRegister"></span>
@@ -101,11 +64,9 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-<<<<<<< HEAD
-  import {reqLogin, reqRegister, reqFindPsw,studentLogin} from '../../api'
-=======
+
   import {reqLogin, reqRegister, reqFindPsw,login} from '../../api'
->>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
+
   import {Toast, MessageBox} from 'mint-ui'
 
   export default {
@@ -169,15 +130,8 @@
         }
       },
       // 异步学生登录
-<<<<<<< HEAD
-      async checkLogin(){
-        // const {sno,stuPsw} = this
-        // let result = await  reqLogin({sno,stuPsw})
-        let result = await studentLogin(this.sno,this.stuPsw);
-=======
       async checkLogin() {
         let result = await login(this.sno, this.stuPsw);
->>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
         if (result.code === 200) {
           const user = result.data;
           Toast({
@@ -476,10 +430,6 @@
       margin 20px auto
       text-align center
       margin-bottom 20px
-<<<<<<< HEAD
-      //background-image url("../../common/imgs/java.png"), url("../../common/imgs/cplus.png"), url("../../common/imgs/php.png"), url("../../common/imgs/android.png"), url("../../common/imgs/h5.png"), url("../../common/imgs/ios.png"), url("../../common/imgs/js.png"), url("../../common/imgs/python.png")
-=======
->>>>>>> ec1bd38e2a15df79eb052d12bbac49b56d494a7a
       background-size 50px 50px, 50px 50px, 50px 50px, 50px 50px, 44px 44px, 32px 32px, 28px 28px, 32px 32px
       background-repeat no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat
       background-position 2% 5%, 95% 5%, 90% 40%, 12% 42%, 95% 80%, 5% 78%, 80% 100%, 18% 100%
