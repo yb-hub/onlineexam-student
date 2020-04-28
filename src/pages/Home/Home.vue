@@ -17,22 +17,22 @@
       <div class="sudoku_item " :class="{opacity:curSelect===item.id}"
            v-for="(item,index) in courseList"
            :key="index" @touchstart="touchstart(item.id)" @touchend="touchend" @click="toPaper(item.id)">
-        <img :src="item.langImgSrc" width="40" height="40" >
+        <img :src='item.remark' width="40" height="40" >
         {{item.name}}
       </div>
     </div>
 
-    <div class="calendar" @click="toCalendar">
-      <div class="calendar-left">
-        <div style="float: left;width: 6px;height: 30px;background-color: #4ab8a1"></div>
-        <i class="iconfont iconrili"></i>
-        考试日历
-      </div>
-<!--      <div class="calendar-right" v-if="false">-->
-<!--        <i class="iconfont iconxiazai41"></i>-->
-<!--        最新考试信息：{{examCalendar[0].teaName}}{{examCalendar[0].noticeCreateTime | date-format('M')}}月{{examCalendar[0].noticeCreateTime | date-format('D')}}号发布-->
+<!--    <div class="calendar" @click="toCalendar">-->
+<!--      <div class="calendar-left">-->
+<!--        <div style="float: left;width: 6px;height: 30px;background-color: #4ab8a1"></div>-->
+<!--        <i class="iconfont iconrili"></i>-->
+<!--        考试日历-->
 <!--      </div>-->
-    </div>
+<!--&lt;!&ndash;      <div class="calendar-right" v-if="false">&ndash;&gt;-->
+<!--&lt;!&ndash;        <i class="iconfont iconxiazai41"></i>&ndash;&gt;-->
+<!--&lt;!&ndash;        最新考试信息：{{examCalendar[0].teaName}}{{examCalendar[0].noticeCreateTime | date-format('M')}}月{{examCalendar[0].noticeCreateTime | date-format('D')}}号发布&ndash;&gt;-->
+<!--&lt;!&ndash;      </div>&ndash;&gt;-->
+<!--    </div>-->
   </div>
 </template>
 

@@ -9,20 +9,20 @@
     <div class="content_container">
       <div class="content">
           <span class="que_type">
-            (多选题)<img :src="item.isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect"/>
+            (多选题)<img :src="isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect"/>
           </span>
-        <span class="que_content">{{item.multipleContent}}</span>
-
-        <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+        <span class="que_content">{{item.title}}</span>
 
         <div class="multiple_option" v-for="(option, optionIndex) in item.options"
-             :key="'multiple'+ item.multipleId + optionIndex">
-          <mu-checkbox :value="option.value" v-model="item.multipleAnswerArray" disabled :label="option.label" v-if="option.label"></mu-checkbox>
+             :key="'multiple'+ item.id + optionIndex">
+          <mu-checkbox :value="option.optionKey" v-model="item.rightOption"
+                       :label="option.optionKey+':'+option.optionValue" disabled
+                       v-if="option.optionValue"></mu-checkbox>
         </div>
 
-        <div class="answer_row">正确答案：<span class="correct_answer">{{item.multipleAnswer}}</span></div>
-        <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>
-        <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.answerExplain || '暂无解析呀老哥，给个解析呗'}}</span></div>
+        <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption}}</span></div>
+<!--        <div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
+        <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
       </div>
     </div>
 
@@ -31,14 +31,16 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-  import {reqMultipleByAnswerId, reqUpdatePaperAnswerIsCollect} from '../../api'
+  import {getQuestionById,updateStudentQuestion} from '../../api'
   import {Toast} from 'mint-ui'
   export default {
     name: "",
     data() {
       return {
-        answerId:this.$route.params.answerId,
-        item:{}
+        sno: this.$store.state.userInfo.studentId,
+        questionId:this.$route.params.questionId,
+        item:{},
+        isCollect: 1
       }
     },
     created(){
@@ -46,49 +48,36 @@
     },
     methods: {
       async getMultipleByAnswerId(){
-        const {answerId} = this;
-        let result = await reqMultipleByAnswerId({answerId});
-        if (result.statu == 0){
+        let result = await getQuestionById(this.questionId);
+        if (result.code  === 200){
           this.item = result.data;
         }
         else {
           Toast({
-            message:result.msg,
+            message:result.message,
             duration: 1500
           });
         }
       },
-      async updatePaperAnswerIsCollect(isCollect){
-        let answerId = parseInt(this.answerId);
-        let result = await reqUpdatePaperAnswerIsCollect(answerId, isCollect);
-        if (result.statu == 0){
-          return true;
-        }
-        else {
-          return false;
+      async updateStudentQuestion(studentId,questionId,isCollect) {
+        let result = await updateStudentQuestion(studentId, questionId, isCollect)
+        if (result.code === 200) {
+          this.isCollect = this.isCollect == 0 ? 1 : 0
+          Toast({
+            message: '收藏成功',
+            duration: 1000,
+            position: 'bottom'
+          });
+        } else {
+          Toast({
+            message: '收藏失败',
+            duration: 1000,
+            position: 'bottom'
+          });
         }
       },
       clickCollect(){
-        if (this.item.isCollect == '0') {
-          this.item.isCollect = '1';
-          if (this.updatePaperAnswerIsCollect('1')) {
-            Toast({
-              message:'收藏成功',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
-        }
-        else {
-          this.item.isCollect = '0';
-          if (this.updatePaperAnswerIsCollect('0')) {
-            Toast({
-              message:'已取消收藏',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
-        }
+        this.updateStudentQuestion(this.sno,this.questionId,this.isCollect == 0 ? 1 : 0)
       }
     },
     components:{

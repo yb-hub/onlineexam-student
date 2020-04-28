@@ -11,12 +11,6 @@
       </div>
     </HeaderTop>
 
-    <!--收藏题目和当前题数-->
-    <div class="wrong_sub_title">
-      <span class="wrong_statistics">
-      </span>
-    </div>
-
     <!--试卷问题及选项区域-->
     <div class="paper_container" v-show="showPaperContainer">
       <!--单选题列表-->
@@ -24,7 +18,7 @@
                v-show="index == currentIndex">
         <div class="content">
           <span class="que_type">
-            (单选题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect('single',item.isCollect,index, item.id)"/>
+            (单选题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
           <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}<span class="que_score">{{item.score}}[分]</span></span>
 
@@ -45,7 +39,7 @@
                v-show="(index + singleQueList.length) == currentIndex">
         <div class="content">
           <span class="que_type">
-            (多选题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
+            (多选题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
           <span class="que_content">{{index + 1 + singleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
 
@@ -57,7 +51,7 @@
           <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption}}</span></div>
           <!--<div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
           <div class="answer_row">是否正确：<span :class="[item.rightOption === multiAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.rightOption === multiAnswerList[index] ? '正确' : '错误'}}</span></div>
-          <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
+          <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
 
@@ -66,7 +60,7 @@
                v-show="(index + singleQueList.length + multipleQueList.length) == currentIndex">
         <div class="content">
           <span class="que_type">
-            (判断题)<img :src="studentQuestionCollectList.indexOf(item.id) == -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.isCollect,index, item.answerId)"/>
+            (判断题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
           <span class="que_content">{{index + 1 + singleQueList.length + multipleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
 
@@ -77,7 +71,7 @@
           <div class="answer_row">正确答案：<span class="correct_answer">{{item.judgeAnswer === 1 ? 'T' : 'F'}}</span></div>
           <!--<div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
           <div class="answer_row">是否正确：<span :class="[item.judgeAnswer === judgeAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.judgeAnswer === judgeAnswerList[index] ? '正确' : '错误'}}</span></div>
-          <div class="answer_row">答案解析：<span class="correct_answer">{{item.explain || '暂无解析呀老哥，给个解析呗'}}</span></div>
+          <div class="answer_row">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
 
@@ -231,14 +225,24 @@
           });
         }
       },
-      clickCollect(type,isCollect,index,questionId){
-        if(type === 'single'){
-          this.singleQueList[index].isCollect = this.singleQueList[index].isCollect == '1' ? '0' : '1'
-        }
-        else if(type === 'multi'){
-
-        }
+      clickCollect(questionId){
+        // if(type === 'single'){
+        //   this.singleQueList[index].isCollect = this.singleQueList[index].isCollect == '1' ? '0' : '1'
+        // }
+        // else if(type === 'multi'){
+        //
+        // }
+        const isCollect = this.judgeIsCollect(questionId)
         this.updateStudentQuestion(this.sno,questionId,isCollect == '1' ? '0' : '1')
+      },
+      judgeIsCollect(questionId){
+        let isCollect = -1
+        for (let i = 0; i < this.studentQuestionCollectList.length; i++) {
+          if(this.studentQuestionCollectList[i].questionId == questionId){
+            isCollect = 1
+          }
+        }
+        return isCollect
       },
       async updateStudentQuestion(studentId,questionId,isCollect){
         let result = await updateStudentQuestion(studentId,questionId,isCollect)
@@ -336,18 +340,15 @@
       }*/
       currentIndex() {
         this.percentage = parseInt((this.currentIndex+1)/this.queNumInfo.totalNum*100);
-        if (this.currentIndex < this.queNumInfo.singleNum){
-          this.isCollect = this.singleQueList[this.currentIndex].isCollect;
-        }
-        else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
-          this.isCollect = this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect;
-        }
-        else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
-          this.isCollect = this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect;
-        }
-        else {
-          this.isCollect = this.fillQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum - this.queNumInfo.judgeNum].isCollect;
-        }
+        // if (this.currentIndex < this.queNumInfo.singleNum){
+        //   this.isCollect = this.singleQueList[this.currentIndex].isCollect;
+        // }
+        // else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum)) {
+        //   this.isCollect = this.multipleQueList[this.currentIndex - this.queNumInfo.singleNum].isCollect;
+        // }
+        // else if (this.currentIndex < (this.queNumInfo.singleNum + this.queNumInfo.multipleNum + this.queNumInfo.judgeNum)) {
+        //   this.isCollect = this.judgeQueList[this.currentIndex - this.queNumInfo.singleNum - this.queNumInfo.multipleNum].isCollect;
+        // }
         sessionStorage.removeItem("currentIndex");
         sessionStorage.setItem("currentIndex",this.currentIndex)
       }

@@ -19,7 +19,7 @@
       <mt-swipe-item v-for="item in [1,1,1]">
         <viewer>
           <!--          <img :src="item.imgSrc" alt="" :class="{'full':isfull}">-->
-          <img src="http://www.lovecoding.online:8999/images/eeca80f86ce542b792cce0c5224d7776.png" alt="" :class="{'full':isfull}">
+          <img src="http://www.lovecoding.online:8999/images/0f0ffb45a9cc465b936cc36a78f585b9.jpg" alt="" :class="{'full':isfull}">
         </viewer>
       </mt-swipe-item>
     </mt-swipe>
@@ -43,10 +43,10 @@
   img
     height 100%
   .mint-swipe
-    height 180px
+    height 200px
     .mint-swipe-item
       text-align center
       .full
         width 100%
-        height 180px
+        height 200px
 </style>

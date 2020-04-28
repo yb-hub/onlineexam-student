@@ -9,15 +9,15 @@
     <div class="content_container">
       <div class="content">
             <span class="que_type">
-              (单选题)<img :src="item.isCollect == '0' ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect"/>
+              (单选题)<img :src="isCollect == 0 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect"/>
             </span>
         <span class="que_content">{{item.title}}</span>
 
-        <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">
+<!--        <img :src="item.pictureSrc" alt="" style="width: 100%" v-if="item.pictureSrc">-->
 
         <div class="single_option" v-for="(option, optionIndex) in item.options"
              :key="'single'+ item.id + optionIndex">
-          <mu-radio :value="option.optionKey" v-model="item.rightOption[0]"
+          <mu-radio :value="option.optionKey" v-model="item.rightOption[0]" disabled
                     :label="option.optionKey+':'+option.optionValue" v-if="option.optionValue"></mu-radio>
         </div>
 
@@ -31,14 +31,16 @@
 
 <script>
   import HeaderTop from '../../components/HeaderTop/HeaderTop.vue'
-  import {getQuestionById, reqUpdatePaperAnswerIsCollect} from '../../api'
+  import {getQuestionById, updateStudentQuestion} from '../../api'
   import {Toast} from 'mint-ui'
   export default {
     name: "",
     data() {
       return {
+        sno: this.$store.state.userInfo.studentId,
         questionId:this.$route.params.questionId,
-        item:{}
+        item:{},
+        isCollect: 1
       }
     },
     created(){
@@ -57,37 +59,26 @@
           });
         }
       },
-      async updatePaperAnswerIsCollect(isCollect){
-        let answerId = parseInt(this.answerId);
-        let result = await reqUpdatePaperAnswerIsCollect(answerId, isCollect);
-        if (result.statu == 0){
-          return true;
-        }
-        else {
-          return false;
+
+      async updateStudentQuestion(studentId,questionId,isCollect) {
+        let result = await updateStudentQuestion(studentId, questionId, isCollect)
+        if (result.code === 200) {
+          this.isCollect = this.isCollect == 0 ? 1 : 0
+          Toast({
+            message: '收藏成功',
+            duration: 1000,
+            position: 'bottom'
+          });
+        } else {
+          Toast({
+            message: '收藏失败',
+            duration: 1000,
+            position: 'bottom'
+          });
         }
       },
       clickCollect(){
-        if (this.item.isCollect == '0') {
-          this.item.isCollect = '1';
-          if (this.updatePaperAnswerIsCollect('1')) {
-            Toast({
-              message:'收藏成功',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
-        }
-        else {
-          this.item.isCollect = '0';
-          if (this.updatePaperAnswerIsCollect('0')) {
-            Toast({
-              message:'已取消收藏',
-              duration: 1000,
-              position:'bottom'
-            });
-          }
-        }
+        this.updateStudentQuestion(this.sno,this.questionId,this.isCollect == 0 ? 1 : 0)
       }
     },
     components:{

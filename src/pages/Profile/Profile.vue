@@ -40,9 +40,6 @@
       <div @click="toDetail('/profile/wrongcollection')">
         <ProfileItem title="收藏题目" icon="iconshoucang-"></ProfileItem>
       </div>
-      <div @click="toDetail('/profile/examcalendar')">
-        <ProfileItem title="考试日历" icon="iconrili2"></ProfileItem>
-      </div>
       <div @click="toDetail('/profile/pswchange')">
         <ProfileItem title="密码修改" icon="iconmima"></ProfileItem>
       </div>
@@ -52,7 +49,9 @@
       <div @click="toDetail('/profile/feedback')">
         <ProfileItem title="反馈留言" icon="iconyijianfankui"></ProfileItem>
       </div>
-
+      <div @click="toDetail('/profile/examcalendar')">
+        <ProfileItem title="考试日历" icon="iconrili2"></ProfileItem>
+      </div>
       <!--退出登录-->
       <div class="login_out" :class="isSelect?'opacity':''"
            @touchstart="toggleSelect" @touchend="toggleSelect"

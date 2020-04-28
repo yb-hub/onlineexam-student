@@ -58,7 +58,7 @@
     </div>
 
     <!--<transition-group enter-active-class="bounceIn" :duration="{enter:200}">-->
-    <mt-loadmore v-if="paperList.length" :top-method="loadTop" ref="loadmore">
+    <mt-loadmore v-loading="loading"  v-if="paperList.length" :top-method="loadTop" ref="loadmore">
       <div class="paper_list" v-for="(item, index) in paperList" :key="item.id">
         <div class="paper_list_item"
              :class="{'corner_top': index == 0, 'corner_new':index == 1, 'corner_hot':item.participateNum > 10}">
@@ -207,6 +207,7 @@
             duration: 2000
           })
         }
+        this.loading = false
       },
       loadTop () {
         this.getPaperByCourseId()
