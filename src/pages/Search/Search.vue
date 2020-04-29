@@ -15,25 +15,25 @@
     <!--关键字搜索试卷列表-->
     <section class="list" v-show="!noSearchPapers">
       <ul class="list_container">
-        <router-link :to="'/home/paper/detail/' + item.paperId" tag="li"
-                     v-for="item in searchPapers" :key="item.paperId" class="list_li">
+        <router-link :to="'/home/paper/detail/' + item.id" tag="li"
+                     v-for="item in searchPapers" :key="item.id" class="list_li">
           <section class="item_left">
-            <img :src="item.langImgSrc" class="restaurant_img">
+            <img src="../../common/imgs/paper.png" class="restaurant_img">
           </section>
           <section class="item_right">
             <div class="item_right_text">
               <p>
-                <span>{{item.paperName}}</span>
-                <span>试卷类型：{{item.paperType == 1 ? '随机组卷' : '固定组卷'}}</span>
+                <span>{{item.title}}</span>
+                <span>试卷类型：{{item.type == 1 ? '小测试' : item.type == 2 ? '期中考试' : '期末考试'}}</span>
               </p>
               <p>
-                <span>考试时长：{{Math.round(item.paperDuration/60)}}分钟</span>
-                <span>参加人数：{{item.participateNum}}人</span>
+                <span>考试时长：{{Math.round(item.limitTime)}}分钟</span>
+<!--                <span>参加人数：{{item.participateNum}}人</span>-->
               </p>
               <p></p>
               <p>
-                <span>发布时间：{{item.paperCreateTime | date-format}}</span>
-                <Star :score="item.paperDifficulty" :size="24" />
+                <span>发布时间：{{item.updateTime | date-format}}</span>
+                <Star :score="item.difficultyDegree" :size="24" />
               </p>
             </div>
           </section>
@@ -53,7 +53,7 @@
   import Star from '../../components/Star/Star.vue'
   import {mapState} from 'vuex'
   import {Toast} from 'mint-ui'
-  import {reqSearchPapers} from '../../api'
+  import {queryPaperByKeyword} from '../../api'
   export default {
     name: "",
     data() {
@@ -89,19 +89,13 @@
         }
       },
       async getSearchPapers(){
-        const {keyword} = this;
-        let result = await reqSearchPapers({keyword});
-        if (result.statu == 0){
+        let result = await queryPaperByKeyword(this.keyword);
+        if (result.code === 200){
           this.searchPapers = result.data;
           this.noSearchPapers = false;
           this.tips = '搜索成功';
         }
         else {
-/*          Toast({
-            message:result.msg,
-            iconClass: 'iconfont iconxinxi',
-            duration: 2000
-          });*/
           this.noSearchPapers = true;
           this.tips = '该关键字暂无搜索结果';
         }
@@ -110,15 +104,6 @@
         this.isSelect = !this.isSelect;
       }
     },
-/*    watch: {
-      searchPapers (value) {
-        if (!value.length) { // 没有数据
-          this.noSearchPapers = true
-        } else { // 有数据
-          this.noSearchPapers = false
-        }
-      }
-    },*/
     components:{
       HeaderTop,
       Star

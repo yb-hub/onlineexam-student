@@ -24,14 +24,14 @@
               {{item.paperTitle}}
             </div>
             <div class="wrong_type">
-              试卷类型：{{item.paperType == 1 ? '练习组卷' : '考试组卷'}}
+              试卷类型：{{item.paperType == 1 ? '小测试' : item.type == 2 ? '期中考试' : '期末考试'}}
             </div>
             <div class="wrong_difficulty">
               <span>难度系数：</span>
               <Star :score="item.paperDifficultyDegree" :size="24" />
             </div>
             <div class="wrong_item">
-              最终成绩：<span class="wrong_important">{{item.totalScore}}</span>分
+              试卷总分：<span class="wrong_important">{{item.totalScore}}</span>分
             </div>
             <div class="wrong_item">
               试卷题数：总共<span class="wrong_important">{{item.paperTotalQuestion}}</span>道

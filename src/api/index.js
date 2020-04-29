@@ -203,3 +203,6 @@ export const getCollectionsByQuestionType = (studentId,questionType) => ajax(BAS
 
 //根据题目id获取题目
 export const getQuestionById = (questionId) => ajax(BASE_URL2 + '/question/'+questionId)
+
+//根据关键字获取试卷
+export const queryPaperByKeyword = (keyword) => ajax(BASE_URL2 + '/paper',{keyword})
