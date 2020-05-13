@@ -16,7 +16,7 @@
         options: {
           padding: 15,                   // canvas 内边距
           bgColor: '#f5f5f5',            // 默认背景颜色
-          title: '四种题型得分情况',// 图表标题
+          title: '三种题型得分情况',// 图表标题
           titleColor: '#000000',         // 图表标题颜色
           titlePosition: 'bottom',      // 图表标题位置: top / bottom
           legendColor: '#000000',         // 图例文本颜色

@@ -20,7 +20,7 @@
           <span class="que_type">
             (单选题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
-          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}<span class="que_score">{{item.score}}[分]</span></span>
+          <span class="que_content">{{index + 1}}.&nbsp;{{item.title}}</span>
 
           <div class="single_option" v-for="(option, optionIndex) in item.options"
                :key="'single'+ item.id + optionIndex">
@@ -41,7 +41,7 @@
           <span class="que_type">
             (多选题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
-          <span class="que_content">{{index + 1 + singleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
+          <span class="que_content">{{index + 1 + singleQueList.length}}.&nbsp;{{item.title}}</span>
 
           <div class="multiple_option" v-for="(option, optionIndex) in item.options"
                :key="'multiple'+ item.id + optionIndex">
@@ -50,7 +50,7 @@
 
           <div class="answer_row">正确答案：<span class="correct_answer">{{item.rightOption}}</span></div>
           <!--<div class="answer_row">你的答案：<span :class="[item.isCorrect == '1' ? 'correct_answer' : 'your_answer']">{{item.stuAnswer || '你太优秀了，该题无作答'}}</span></div>-->
-          <div class="answer_row">是否正确：<span :class="[item.rightOption === multiAnswerList[index] ? 'correct_answer' : 'your_answer']">{{item.rightOption === multiAnswerList[index] ? '正确' : '错误'}}</span></div>
+          <div class="answer_row">是否正确：<span :class="[item.rightOption.toString() === multiAnswerList[index].toString() ? 'correct_answer' : 'your_answer']">{{item.rightOption.toString() == multiAnswerList[index].toString() ? '正确' : '错误'}}</span></div>
           <div class="answer_row answer_explain">答案解析：<span class="correct_answer">{{item.analysis || '暂无解析呀老哥，给个解析呗'}}</span></div>
         </div>
       </section>
@@ -62,7 +62,7 @@
           <span class="que_type">
             (判断题)<img :src="judgeIsCollect(item.id) === -1 ? require('../../common/imgs/no-collect.png') : require('../../common/imgs/yes-collect.png')" @click="clickCollect(item.id)"/>
           </span>
-          <span class="que_content">{{index + 1 + singleQueList.length + multipleQueList.length}}.&nbsp;{{item.title}}<span class="que_score">[分]</span></span>
+          <span class="que_content">{{index + 1 + singleQueList.length + multipleQueList.length}}.&nbsp;{{item.title}}</span>
 
           <div class="judge_option" v-for="(option, optionIndex) in [{'value':'1','label':'T'},{'value':'0','label':'F'}]"
                :key="'judge'+ item.id + optionIndex">
@@ -82,8 +82,8 @@
                    :disabled="currentIndex < 1">{{currentIndex < 1 ? '无' :
           '上一题'}}
         </mt-button>
-        <mt-button type="primary" @click.native="nextItem" :disabled="currentIndex == queNumInfo.totalNum-1">
-          {{currentIndex == queNumInfo.totalNum-1 ? '到底了哥' : '下一题'}}
+        <mt-button type="primary" @click.native="nextItem" :disabled="currentIndex == queNumInfo-1">
+          {{currentIndex == queNumInfo-1 ? '到底了哥' : '下一题'}}
         </mt-button>
       </div>
     </div>
@@ -119,7 +119,7 @@
           <div class="row">
             <div class="item" v-for="(multipleItem, multipleIndex) in multipleQueList" :key="multipleIndex">
               <div @click="toPaperQue(multipleIndex + 1 + singleQueList.length)"
-                   :class="[multipleItem.rightOption === multiAnswerList[multipleIndex] ? 'correct_flag' : 'error_flag']">
+                   :class="[multipleItem.rightOption.toString() === multiAnswerList[multipleIndex].toString() ? 'correct_flag' : 'error_flag']">
                 <span>{{multipleIndex + 1 + singleQueList.length}}</span>
               </div>
             </div>
@@ -165,7 +165,7 @@
         //试卷信息
         paperInfo: {},
         //试卷问题类型数量
-        queNumInfo: {},
+        queNumInfo: 0,
         //单选题数组
         singleQueList: [],
         //多选题数组
@@ -210,7 +210,7 @@
           const paperId = result.data.paperId
           const paperTitle = result.data.paperTitle
           this.paperInfo = {"id":paperId,"title":paperTitle}
-          // this.queNumInfo = result.data.queNumInfo;
+          this.queNumInfo = result.data.totalQuestion;
           this.singleAnswerList = result.data.singleAnswer
           this.multiAnswerList = result.data.multiAnswer
           this.judgeAnswerList = result.data.judgeAnswer
